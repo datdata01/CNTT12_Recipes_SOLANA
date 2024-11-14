@@ -58,26 +58,26 @@ Route::get("/test", [Controller::class, 'test'])->name("test");
 
 // admin
 Route::prefix('/admin')->middleware(['auth', 'checkAccountStatus', 'checkRole:2'])->group(function () {
-    Route::resource('article', ArticleController::class);
-    Route::resource('banner', BannerController::class);
-    Route::resource('attributes', AttributeController::class);
-    Route::resource('attributeValues', AttributeValueController::class);
-    Route::resource('category-product', CategoryProductController::class);
-    Route::resource('category-article', CategoryArticleController::class);
+    // Route::resource('article', ArticleController::class);
+    // Route::resource('banner', BannerController::class);
+    // Route::resource('attributes', AttributeController::class);
+    // Route::resource('attributeValues', AttributeValueController::class);
+    // Route::resource('category-product', CategoryProductController::class);
+    // Route::resource('category-article', CategoryArticleController::class);
     Route::resource('roles', RoleController::class);
     Route::resource('users', UserController::class);
-    Route::resource('voucher', VoucherController::class);
+    // Route::resource('voucher', VoucherController::class);
     Route::resource('refund', RefundController::class);
-    Route::resource('products', AdminProductController::class);
-    Route::resource('imagearticle', ImageArticleController::class);
-    Route::resource('orders', AdminOrderController::class);
-    Route::resource('feedback', FeedbackController::class);
+    // Route::resource('products', AdminProductController::class);
+    // Route::resource('imagearticle', ImageArticleController::class);
+    // Route::resource('orders', AdminOrderController::class);
+    // Route::resource('feedback', FeedbackController::class);
     Route::get('', [DashboardController::class, 'index'])->name('dashboard');
 });
 
 // client
 Route::prefix('')->middleware(['auth', 'checkAccountStatus', 'checkRole:1', 'updateOrderStatus'])->group(function () {
-    Route::get('/cart', [CartController::class, 'index'])->name('cart');
+    // Route::get('/cart', [CartController::class, 'index'])->name('cart');
     // Route::get('/check-out', [CheckOutController::class, 'checkOutByCart'])->name('check-out');
     // Route::get('/check-out-now', [CheckOutController::class, 'checkOutByNow'])->name('check-out-now');
 
@@ -88,8 +88,8 @@ Route::prefix('')->middleware(['auth', 'checkAccountStatus', 'checkRole:1', 'upd
     // Route::get('/order-success/{id}', [OrderController::class, 'index'])->name('order-success');
     // //profile
     Route::prefix('profile')->name('profile.')->group(function () {
-        Route::get('/', [ProfileController::class, 'infomation'])->name('infomation');
-        Route::get('/order-history', [ProfileController::class, 'orderHistory'])->name('order-history');
+        // Route::get('/', [ProfileController::class, 'infomation'])->name('infomation');
+        // Route::get('/order-history', [ProfileController::class, 'orderHistory'])->name('order-history');
     //     Route::get('/order/{id}', [ProfileController::class, 'orderDetail'])->name('order.details');
     //     // Route::get('/address', [ProfileController::class, 'address'])->name('address');
     //     Route::get('address', [AddersController::class, 'index'])->name('address');
@@ -118,18 +118,18 @@ Route::prefix('')->middleware(['auth', 'checkAccountStatus', 'checkRole:1', 'upd
     // Route::post('/toggle-favorite', [WishListController::class, 'toggleFavorite'])->name('toggle.favorite');
 });
 
-Route::post('/search', [SearchController::class, 'search'])->name('search');
+// Route::post('/search', [SearchController::class, 'search'])->name('search');
 
-Route::get('/wish-list', [WishListController::class, 'index'])->name('wish-list');
+// Route::get('/wish-list', [WishListController::class, 'index'])->name('wish-list');
 // Route::get('/collection-product', [CollectionProductController::class, 'index'])->name('collection-product');
 // // <!--Phần này giữ hay bỏ thì nhìn route  nhé - chọn 1 trong 2-->
 Route::get('/', [HomeController::class, 'index'])->name('home');
 // Route::get('/product/{id}', [ProductController::class, 'index'])->name('product');
-Route::get('/collection-product', [CollectionProductController::class, 'index'])->name('collection-product');
-Route::get('/collection-blog', [CollectionBlogController::class, 'index'])->name('collection-blog');
+// Route::get('/collection-product', [CollectionProductController::class, 'index'])->name('collection-product');
+// Route::get('/collection-blog', [CollectionBlogController::class, 'index'])->name('collection-blog');
 // Route::get('/blog', [BlogController::class, 'index'])->name('blog');
-Route::get('/contact', [ContactController::class, 'index'])->name('contact');
-Route::post('/blog/{articleId}/comment', [BlogController::class, 'storeComment'])->name('blog.comment.store');
+// Route::get('/contact', [ContactController::class, 'index'])->name('contact');
+// Route::post('/blog/{articleId}/comment', [BlogController::class, 'storeComment'])->name('blog.comment.store');
 // Route::get('/blog/{id}', [BlogController::class, 'show'])->name('blog.show');
 // Route::get('/category-blog/{id}', [CollectionBlogController::class, 'articlesByCategory'])->name('category-articles');
 // Route::get('/blog/category-blog/{id}', [BlogController::class, 'articlesByCategory'])->name('category-blog');
