@@ -16,7 +16,6 @@ class BlogController extends Controller
         $articles = Article::orderBy('id', 'desc')->paginate(10); // Lấy danh sách bài viết
         $latestPosts = Article::orderBy('id', 'desc')->take(4)->get();
         $categories = CategoryArticle::withCount('articles')->get();
-        $categories = CategoryArticle::withCount( 'articles')->get();
         return view('client.pages.blog.index', compact('articles', 'latestPosts', 'categories'));
     }
 
@@ -43,10 +42,6 @@ class BlogController extends Controller
         $comments = CommentPost::with('user', 'replies.user')->where('article_id', $articleId)->get();
         return view('client.pages.blog.comment_render', compact('comments'));
     }
-public function showComments($articleId) {
-    $comments = CommentPost::with('user', 'replies.user')->where('article_id', $articleId)->get();
-    return view('client.pages.blog.comment_render', compact('comments'));
-}
 
     public function show($id)
     {
@@ -57,10 +52,7 @@ public function showComments($articleId) {
         $comments = CommentPost::with(['user', 'replies.user'])
             ->where('article_id', $article->id)
             ->whereNull('parent_comment_id') // Chỉ lấy các comment chính (không có comment cha)
-            ->get()
-        ->where('article_id', $article->id)
-        ->whereNull('parent_comment_id') // Chỉ lấy các comment chính (không có comment cha)
-        ->get();
+            ->get();
 
 
         // Lấy các bài viết mới nhất
