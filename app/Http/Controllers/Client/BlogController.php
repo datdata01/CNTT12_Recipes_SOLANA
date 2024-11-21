@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Article;
 use App\Models\CategoryArticle;
 use App\Models\CommentPost;
+use Flasher\Prime\Notification\NotificationInterface;
 use Illuminate\Http\Request;
 
 class BlogController extends Controller
@@ -14,7 +15,7 @@ class BlogController extends Controller
     {
         $articles = Article::orderBy('id', 'desc')->paginate(10); // Lấy danh sách bài viết
         $latestPosts = Article::orderBy('id', 'desc')->take(4)->get();
-        $categories = CategoryArticle::withCount( 'articles')->get();
+        $categories = CategoryArticle::withCount('articles')->get();
         return view('client.pages.blog.index', compact('articles', 'latestPosts', 'categories'));
     }
 
@@ -36,10 +37,11 @@ class BlogController extends Controller
         return view('client.pages.collection-blog.index', compact('articles', 'latestPosts', 'categories', 'category'));
     }
     // Trong Controller
-public function showComments($articleId) {
-    $comments = CommentPost::with('user', 'replies.user')->where('article_id', $articleId)->get();
-    return view('client.pages.blog.comment_render', compact('comments'));
-}
+    public function showComments($articleId)
+    {
+        $comments = CommentPost::with('user', 'replies.user')->where('article_id', $articleId)->get();
+        return view('client.pages.blog.comment_render', compact('comments'));
+    }
 
     public function show($id)
     {
@@ -48,9 +50,9 @@ public function showComments($articleId) {
 
         // Lấy các bình luận cho bài viết, cùng với thông tin người dùng
         $comments = CommentPost::with(['user', 'replies.user'])
-        ->where('article_id', $article->id)
-        ->whereNull('parent_comment_id') // Chỉ lấy các comment chính (không có comment cha)
-        ->get();
+            ->where('article_id', $article->id)
+            ->whereNull('parent_comment_id') // Chỉ lấy các comment chính (không có comment cha)
+            ->get();
 
 
         // Lấy các bài viết mới nhất
@@ -80,4 +82,23 @@ public function showComments($articleId) {
         return redirect()->route('blog.show', $articleId);
     }
 
+    public function deleteComment($id)
+    {
+        $comment = CommentPost::findOrFail($id);
+        // Xóa mềm (soft delete)
+        if ($comment->delete()) {
+            toastr("Xóa bình luận khách hàng thành công", NotificationInterface::SUCCESS, "Thành công !", [
+                "closeButton" => true,
+                "progressBar" => true,
+                "timeOut" => "3000",
+            ]);
+        } else {
+            toastr("Xóa bình luận  không thành công!", NotificationInterface::ERROR, "Thất bại!", [
+                "closeButton" => true,
+                "progressBar" => true,
+                "timeOut" => "3000",
+            ]);
+        }
+        return back();
+    }
 }
