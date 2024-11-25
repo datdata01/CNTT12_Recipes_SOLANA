@@ -260,7 +260,7 @@
                             <div class="stat-widget-four">
                                 <div class="dib text-left">
                                     <div class="stat-heading">Sản phẩm hết hàng</div>
-                                    <div class="stat-text">Tổng số: {{ $inactiveProducts }}</div>
+                                    <div class="stat-text">Tổng số: {{ $inactiveProductsCount }}</div>
                                 </div>
                             </div>
                         </div>

@@ -76,6 +76,16 @@
                                 </div>
                             @endif
                         </div>
+                        <div class="form-group">
+                            <label for="" class="form-control-label">Gới hạn sử dụng cho 1 tài khoản</label>
+                            <input type="number" name="limited_uses" placeholder="Nhập giới hạn." class="form-control"
+                                value="{{ $voucher->limited_uses }}">
+                            @if ($errors->has('limited_uses'))
+                                <div class="form-text badge text-danger">
+                                    {{ $errors->first('limited_uses') }}
+                                </div>
+                            @endif
+                        </div>
                     </div>
                     <div class="col-6">
                         <div class="form-group">

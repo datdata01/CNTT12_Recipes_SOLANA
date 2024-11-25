@@ -187,12 +187,6 @@ class ProductController extends Controller
             $variantId = $request->input('variantId');
             $productResponse = ProductVariant::with(['product', 'attributeValues.attribute'])->where('id', $variantId)->first();
             $voucher = VoucherUsage::with('voucher')
-                ->where('user_id', $userId)
-                ->Where('end_date', '>', Carbon::now())
-                ->Where('status', 'ACTIVE')
-                ->whereHas('voucher', function ($query) {        // Lọc các voucher có limit > 0
-                    $query->where('limit', '>', 0);               // Điều kiện limit > 0
-                })
                 ->latest('id')
                 ->get();
             return response()->json([

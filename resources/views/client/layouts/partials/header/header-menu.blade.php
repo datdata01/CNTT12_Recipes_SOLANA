@@ -35,9 +35,9 @@
             <div class="main-menu">
                 <a class="brand-logo" href="{{ route('home') }}">
                     <img class="img-fluid for-light"
-                        src="/template/client/assets/images/logo/logoGumdamWin-removebg-preview.png" alt="logo" />
+                        src="/template/client/assets/images/logo/snapedit_1732566815867.png" alt="logo" />
                     <img class="img-fluid for-dark"
-                        src="/template/client/assets/images/logo/logoGW01-removebg-preview.png" alt="logo" />
+                        src="/template/client/assets/images/logo/snapedit_1732566815867.png" alt="logo" />
                 </a>
                 <nav id="main-nav">
                     <ul class="nav-menu sm-horizontal theme-scrollbar" id="sm-horizontal">
@@ -102,34 +102,36 @@
                                 <i class="iconsax" data-icon="user-2"></i>
                             </a>
                             @if (Auth::id())
-                                <!-- Người dùng đã đăng nhập -->
-                                <div class="onhover-show-div user" style="width: 200px;">
-                                    <ul>
-                                        @php
-                                            // Lấy role_id từ bảng user_roles
-                                            $roleIds = \DB::table('user_roles')
-                                                ->where('user_id', Auth::id())
-                                                ->pluck('role_id')
-                                                ->toArray();
-                                        @endphp
-                                        @if (in_array(2, $roleIds))
-                                            <li><a href="{{ route('dashboard') }}">Trang quản lý</a></li>
-                                        @endif
-                                        <li><a href="{{ route('profile.infomation') }}">Thông tin tài khoản</a></li>
-                                        <li><a href="{{ route('profile.order-history') }}">Lịch sử mua hàng</a></li>
-                                        <li>
-                                            <!-- Form đăng xuất để xử lý bằng phương thức POST -->
-                                            <form action="{{ route('auth.logout') }}" method="POST"
-                                                style="display: inline;">
-                                                @csrf
-                                                <button type="submit" title="Đăng xuất"
-                                                    style="background: none; border: none; padding: 0; cursor: pointer; text-decoration: none;">
-                                                    <a>Đăng xuất</a>
-                                                </button>
-                                            </form>
-                                        </li>
-                                    </ul>
-                                </div>
+                                                            <!-- Người dùng đã đăng nhập -->
+                                                            <div class="onhover-show-div user" style="width: 200px;">
+                                                                <ul>
+                                                                    @php
+                                                                        // Kiểm tra vai trò của người dùng
+                                                                        $user = Auth::user();
+                                                                        $isAdmin = $user->hasRole('Admin'); // Kiểm tra vai trò Admin
+                                                                        $isStaff = $user->hasRole('Staff'); // Kiểm tra vai trò Nhân viên
+                                                                    @endphp
+
+                                                                    @if ($isAdmin)
+                                                                        <li><a href="{{ route('dashboard') }}">Trang quản lý</a></li>
+                                                                    @elseif ($isStaff)
+                                                                        <li><a href="{{ route('article.index') }}">Quản lý bài viết</a></li>
+                                                                    @endif
+                                                                    <li><a href="{{ route('profile.infomation') }}">Thông tin tài khoản</a></li>
+                                                                    <li><a href="{{ route('profile.order-history') }}">Lịch sử mua hàng</a></li>
+                                                                    <li>
+                                                                        <!-- Form đăng xuất để xử lý bằng phương thức POST -->
+                                                                        <form action="{{ route('auth.logout') }}" method="POST"
+                                                                            style="display: inline;">
+                                                                            @csrf
+                                                                            <button type="submit" title="Đăng xuất"
+                                                                                style="background: none; border: none; padding: 0; cursor: pointer; text-decoration: none;">
+                                                                                <a>Đăng xuất</a>
+                                                                            </button>
+                                                                        </form>
+                                                                    </li>
+                                                                </ul>
+                                                            </div>
                             @else
                                 <!--Nếu người dùng chưa đăng nhập nhé-->
                                 <div class="onhover-show-div user">

@@ -31,6 +31,9 @@
                                     <li>
                                         <h5>Ngày đặt: {{ $order->created_at->format(' H:i:s d-m-Y') }}</h5>
                                     </li>
+                                    <li>
+                                        <h5>Ghi chú: {{ $order->note }}</h5>
+                                    </li>
                                 </ul>
                             </div>
                         </div>
@@ -99,6 +102,8 @@
                                         <span class="badge bg-primary">Thành công</span>
                                     @elseif ($order->status === 'CANCELED')
                                         <span class="badge bg-danger">Đã Huỷ</span>
+                                    @elseif ($order->status === 'REFUND')
+                                        <span class="badge bg-danger">Hoàn hàng</span>
                                     @endif
                                 </h4>
                                 @if ($order->status === 'PENDING')
@@ -118,6 +123,8 @@
                                     <div class="alert alert-success">Đơn hàng đã hoàn tất.</div>
                                 @elseif ($order->status === 'CANCELED')
                                     <div class="alert alert-danger">Đơn hàng đã bị hủy.</div>
+                                @elseif ($order->status === 'REFUND')
+                                    <div class="alert alert-danger">Hoàn hàng.</div>
                                 @endif
                             </div>
                         </div>

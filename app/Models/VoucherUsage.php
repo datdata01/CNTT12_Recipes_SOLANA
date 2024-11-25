@@ -13,10 +13,7 @@ class VoucherUsage extends Model
     protected $fillable = [
         'user_id',
         'voucher_id',
-        'vourcher_code',
-        'start_date',
-        'end_date',
-        'status', 
+        'used',
     ];
     public $timestamps = false; 
     // nhiều vourcher_usages thuộc về 1 vourcher

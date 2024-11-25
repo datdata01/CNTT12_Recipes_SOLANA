@@ -42,12 +42,6 @@ class CheckOutController extends Controller
         $userAddress = AddressUser::where('user_id', $userId)->get();
         $provinces = Province::all();
         $voucher = VoucherUsage::with('voucher')
-            ->where('user_id', Auth::id())
-            ->Where('end_date', '>', Carbon::now())
-            ->Where('status', 'ACTIVE')
-            ->whereHas('voucher', function ($query) {        // Lọc các voucher có limit > 0
-                $query->where('limit', '>', 0);               // Điều kiện limit > 0
-            })
             ->latest('id')
             ->get();
 
@@ -172,7 +166,9 @@ class CheckOutController extends Controller
                         'voucher_used' => $voucher->voucher_used + 1, // Tăng số lần đã sử dụng
                     ]);
 
-                    $voucherUsage->delete();
+                    $voucherUsage->update([
+                        'used' => $voucherUsage->used + 1
+                    ]);
                 }
             }
 
@@ -281,7 +277,9 @@ class CheckOutController extends Controller
                         'voucher_used' => $voucher->voucher_used + 1, // Tăng số lần đã sử dụng
                     ]);
 
-                    $voucherUsage->delete();
+                    $voucherUsage->update([
+                        'used' => $voucherUsage->used + 1
+                    ]);
                 }
             }
 

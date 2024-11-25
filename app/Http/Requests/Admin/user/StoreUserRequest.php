@@ -28,9 +28,8 @@ class StoreUserRequest extends FormRequest
             'image'     =>'required|image|mimes:jpeg,png,jpg,gif|max:2048',
             'phone'     =>'required|digits_between:10,15',
             'status'    =>'required|in:ACTIVE,IN_ACTIVE',
-            
+
             'roles'     => 'required|array', 
-            'roles.*'   => 'exists:roles,id',
         ];
     }
 
@@ -62,7 +61,6 @@ class StoreUserRequest extends FormRequest
             'status.in'          => 'Trạng thái phải là Hoạt động hoặc Ngưng hoạt động.',
 
             'roles.required'     => 'Vai trò là bắt buộc.',
-            'roles.*.exists'     => 'Vai trò không hợp lệ.',
         ];
     }
 

@@ -18,7 +18,7 @@ class OrderController extends Controller
     public function index()
     {
         $data = Order::with('orderItems.productVariant.attributeValues.attribute', 'orderItems.productVariant.product', 'user')
-        ->latest('id')->paginate(5);
+        ->latest('id')->paginate(12);
 
         return view('admin.pages.orders.index', compact('data'));
     }

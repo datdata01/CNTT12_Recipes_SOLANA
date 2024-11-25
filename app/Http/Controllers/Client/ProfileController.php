@@ -11,6 +11,8 @@ use App\Models\Feedback;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Province;
+use App\Models\Refund;
+use App\Models\RefundItem;
 use App\Models\User;
 use App\Models\Voucher;
 use App\Models\VoucherUsage;
@@ -21,6 +23,7 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use \App\Http\Requests\Client\refund\RefundRequest;
 
 class ProfileController extends Controller
 {
@@ -33,10 +36,11 @@ class ProfileController extends Controller
     {
         $userId = Auth::id();
         // Lấy tất cả các Order cùng với OrderItems và ProductVariants
-        $orders = Order::with('orderItems.productVariant.attributeValues.attribute', 'orderItems.productVariant.product', 'user')
+        $orders = Order::with('orderItems.productVariant.attributeValues.attribute', 'orderItems.productVariant.product', 'user', 'refund')
             ->where('user_id', $userId)
             ->orderBy('id', 'desc')
             ->get();
+        // dd($orders);
         return view('client.pages.profile.order', compact('orders'));
     }
     public function feedbackstore(FeedbackRequest $request)
@@ -62,15 +66,9 @@ class ProfileController extends Controller
         $voucher = Voucher::where('type', 'SUCCESS')->first();
 
         if ($voucher) {
-            $startDate = Carbon::now()->lt($voucher->start_date) ? $voucher->start_date : Carbon::now();
-
             $data = [
                 "user_id" => Auth::id(),
-                "voucher_id" => $voucher->id,
-                "vourcher_code" => strtoupper(string: Str::random(8)),
-                "start_date" => $startDate,
-                "end_date" => $voucher->end_date,
-                "status" => "ACTIVE",
+                "voucher_id" => $voucher->id
             ];
 
             VoucherUsage::create($data);
@@ -89,7 +87,11 @@ class ProfileController extends Controller
     public function orderDetail($id)
     {
         // Lấy thông tin đơn hàng theo ID
-        $order = Order::with('orderItems.productVariant.product', 'refund')->findOrFail($id);
+        $order = Order::with([
+            'orderItems.productVariant.product',
+            'refund.refundItem.productVariant.product',
+        ])->findOrFail($id);
+        // dd($order);
         return view('client.pages.profile.layouts.components.details', compact('order'));
     }
     public function orderCancel(Request $request, $id)
@@ -160,7 +162,7 @@ class ProfileController extends Controller
 
         return redirect()->back();
     }
-        public function orderDelete($id)
+    public function orderDelete($id)
     {
         $order = Order::findOrFail($id);
         $user = Auth::user();
@@ -272,5 +274,99 @@ class ProfileController extends Controller
             "color" => "red"
         ]);
         return back();
+    }
+
+    public function createOrderRefunds($id)
+    {
+        $order = Order::with('orderItems.productVariant.product')->findOrFail($id);
+        // dd($order);
+        return view('client.pages.profile.layouts.components.create-refunds', compact('order'));
+    }
+
+    public function storeRefunds(Request $request)
+    {
+        // Kiểm tra nếu 'refund' tồn tại và là mảng
+        if ($request->has('refund') && is_array($request->refund)) {
+            // Kiểm tra xem đơn hàng đã có đơn hoàn hàng hay chưa
+            if (Refund::where('order_id', $request->order_id)->exists()) {
+                // Thông báo lỗi nếu đã có đơn hoàn hàng
+                toastr("Đơn hàng này đã có đơn hoàn hàng", NotificationInterface::ERROR, "Thất bại", [
+                    "closeButton" => true,
+                    "progressBar" => true,
+                    "timeOut" => "3000",
+                ]);
+
+                return redirect()->back();
+            }
+
+            // Lấy thông tin đơn hoàn hiện tại hoặc tạo mới nếu không có
+            $refund = Refund::create([
+                'order_id' => $request->order_id,
+                'code' => $this->codeRefund(),
+            ]);
+
+            // Cập nhật trạng thái đơn hàng thành "Đơn hoàn hàng"
+            $order = Order::find($request->order_id);
+            if ($order) {
+                $order->update([
+                    'status' => 'REFUND',
+                ]);
+            }
+
+            // Lặp qua từng sản phẩm trong mảng 'refund'
+            foreach ($request->refund as $key => $item) {
+                $imagePath = null;
+                if (isset($item['image']) && $request->hasFile("refund.$key.image")) {
+                    $imagePath = $request->file("refund.$key.image")->store('refund_images', 'public');
+                }
+
+                // Lưu thông tin refund item
+                RefundItem::create([
+                    'refund_id' => $refund->id,
+                    'product_variant_id' => $item['product_variant_id'],
+                    'quantity' => $item['quantity'],
+                    'reason' => $item['reason'],
+                    'description' => $item['description'],
+                    'img' => $imagePath,
+                ]);
+            }
+
+            // Thông báo thành công
+            toastr("Tạo đơn hoàn hàng thành công", NotificationInterface::SUCCESS, "Thành công", [
+                "closeButton" => true,
+                "progressBar" => true,
+                "timeOut" => "3000",
+            ]);
+
+            return view('client.pages.profile.layouts.components.details', compact('order'));
+        } else {
+            // Thông báo thất bại
+            toastr("Tạo đơn hoàn hàng thất bại", NotificationInterface::ERROR, "Thất bại", [
+                "closeButton" => true,
+                "progressBar" => true,
+                "timeOut" => "3000",
+            ]);
+
+            return redirect()->back();
+        }
+    }
+
+
+
+    private function codeRefund()
+    {
+        // Tạo một chuỗi ngẫu nhiên gồm các chữ cái viết hoa và số với độ dài 14 ký tự
+        // $code = Str::upper(Str::random(14));
+
+        $time = now()->format('YmdHis');
+        // dd($time);
+
+        // Đảm bảo chuỗi có cả số và chữ cái bằng cách trộn ký tự từ hai tập hợp riêng biệt
+        $letters = Str::random(7); // Lấy 7 chữ cái ngẫu nhiên
+        $numbers = substr(str_shuffle($time), 0, 7); // Lấy 4 số ngẫu nhiên
+
+        // Gộp và xáo trộn chữ cái và số để đảm bảo vị trí ngẫu nhiên
+        $mixedCode = str_shuffle($letters . $numbers);
+        return strtoupper($mixedCode);
     }
 }

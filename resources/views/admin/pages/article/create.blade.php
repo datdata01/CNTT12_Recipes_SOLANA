@@ -12,14 +12,6 @@
                 <form action="{{ route('article.store') }}" method="post" enctype="multipart/form-data"
                     class="form-horizontal">
                     @csrf
-                    <!-- Modal hiển thị link ảnh -->
-                    <div class="text-right mb-3">
-                        <button type="button" class="btn btn-success btn-sm" data-toggle="modal"
-                            data-target="#imageDetailModal">
-                            <a>Ảnh bài viết</a>
-                        </button>
-                    </div>
-
                     <div class="row">
                         <!-- Chọn danh mục -->
                         <div class="row form-group">
@@ -86,12 +78,6 @@
             </div>
         </div>
     </div>
-
-    @include('admin.pages.imagearticle.show')
-    {{-- <script src="//cdn.ckeditor.com/4.22.1/full/ckeditor.js"></script>
-    <script>
-        CKEDITOR.replace('content');
-    </script> --}}
 @endsection
 @push('admin-scripts')
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>

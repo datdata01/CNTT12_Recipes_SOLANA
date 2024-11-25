@@ -23,7 +23,7 @@ class UpdateVoucherRequest extends FormRequest
     {
         return [
             'name' => 'required',
-            'code' => 'unique:vouchers,code,' . $this->route('voucher'),
+            'code' => 'required|unique:vouchers,code,' . $this->route('voucher'),
             'description' => 'required',
             'limit' => 'required|integer|gt:0',
             'start_date' => 'required',
@@ -33,6 +33,7 @@ class UpdateVoucherRequest extends FormRequest
             'min_order_value' => 'required|numeric',
             'max_order_value' => 'required|numeric|gt:min_order_value',
             'status' => 'required',
+            'limited_uses'=> 'nullable|numeric'
         ];
     }
 
@@ -68,6 +69,8 @@ class UpdateVoucherRequest extends FormRequest
             'max_order_value.gt' => 'Giá trị tối đa phải lớn hơn giá trị tối thiểu.',
 
             'status.required' => 'Không được bỏ trống trường dữ liệu',
+
+            'limited_uses.numeric' => 'Giới hạn sử dụng nhập sai kiểu dữ liệu'
         ];
     }
 }

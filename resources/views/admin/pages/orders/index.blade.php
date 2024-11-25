@@ -23,6 +23,7 @@
                         <option value="SHIPPED">Đã giao hàng</option>
                         <option value="COMPLETED">Đơn hàng hoàn tất</option>
                         <option value="CANCELED">Đơn hàng đã Huỷ</option>
+                        <option value="REFUND">Hoàn hàng</option>
                     </select>
                 </div>
             </div>
@@ -82,6 +83,7 @@
                                         order.status === 'DELIVERING' ? '<span class="badge bg-primary">Đang giao hàng</span>' :
                                         order.status === 'SHIPPED' ? '<span class="badge bg-primary">Đã giao hàng</span>' :
                                         order.status === 'COMPLETED' ? '<span class="badge bg-success">Đơn hàng hoàn tất</span>' :
+                                        order.status === 'REFUND' ? '<span class="badge bg-danger">Hoàn hàng</span>' :
                                         '<span class="badge bg-danger">Đơn hàng đã Huỷ</span>'}
                                 </td>
                                 <td>${new Date(order.created_at).toLocaleDateString('vi-VN')}</td>

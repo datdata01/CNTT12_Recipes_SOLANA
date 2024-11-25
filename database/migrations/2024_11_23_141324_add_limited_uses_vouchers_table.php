@@ -12,14 +12,14 @@ return new class extends Migration
     public function up()
     {
         Schema::table('vouchers', function (Blueprint $table) {
-            $table->enum('type',['OTHER','REGISTER','SUCCESS'])->default('OTHER');
+            $table->integer('limited_uses')->nullable()->after('type'); 
         });
     }
 
     public function down()
     {
         Schema::table('vouchers', function (Blueprint $table) {
-            $table->dropColumn('type');
+            $table->dropColumn('limited_uses');
         });
     }
 };

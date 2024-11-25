@@ -17,7 +17,7 @@ class ArticleController extends Controller
     {
         $article = Article::with('categoryArticle')
             ->orderBy('id', 'desc')
-            ->paginate(10);
+            ->paginate(12);
         return view("admin.pages.article.index", ['listArticle' => $article]);
     }
 

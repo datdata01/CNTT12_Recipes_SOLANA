@@ -10,6 +10,18 @@
             <div class="sidebar-title">
                 <div class="loader-line"></div>
                 <h4>Ưu đãi</h4>
+                <form action="{{ route('profile.myVoucher.create') }}" method="post" class="mt-5 row">
+                    @csrf
+                    <div class="mb-3 d-flex align-items-center">
+                        
+                        <input type="text" name="code" id="code" class="form-control me-2"
+                            placeholder="Nhập mã giảm giá" >
+                        <button type="submit" class="btn btn-primary">Lưu</button>
+                    </div>
+                    @error('code')
+                        <div class="text-danger">{{ $message }}</div>
+                    @enderror
+                </form>
             </div>
 
             <div class="row gy-3">
@@ -25,7 +37,7 @@
                                         </span>
                                         <span class="address">
                                             <span class="address-home">
-                                                <span class="address-tag">Mã giảm giá:</span> {{ $item->vourcher_code }}
+                                                <span class="address-tag">Mã giảm giá:</span> {{ $item->voucher->code }}
                                             </span>
                                         </span>
                                         <span class="address">
@@ -41,7 +53,7 @@
                                         <span class="address">
                                             <span class="address-home">
                                                 <span class="address-tag">Trạng thái:</span>
-                                                @if ($item->status == 'ACTIVE' && $item->end_date > \Carbon\Carbon::now() && $item->voucher->limit > 0)
+                                                @if ($item->voucher->status == 'ACTIVE' && $item->voucher->end_date > \Carbon\Carbon::now() && $item->voucher->limit > 0)
                                                     Còn hiệu lực
                                                 @else
                                                     Hết hiệu lực
@@ -51,19 +63,21 @@
 
                                         @php
                                             $currentDate = \Carbon\Carbon::now();
-                                            $startDate = \Carbon\Carbon::parse($item->start_date);
+                                            $startDate = \Carbon\Carbon::parse($item->voucher->start_date);
                                         @endphp
 
                                         @if ($currentDate->lt($startDate))
                                             <span class="address">
                                                 <span class="address-home">
-                                                    <span class="address-tag">Ngày hiệu lực:</span> {{ $item->start_date }}
+                                                    <span class="address-tag">Ngày hiệu lực:</span>
+                                                    {{ $item->voucher->start_date }}
                                                 </span>
                                             </span>
                                         @else
                                             <span class="address">
                                                 <span class="address-home">
-                                                    <span class="address-tag">Ngày hết hạn:</span> {{ $item->end_date }}
+                                                    <span class="address-tag">Ngày hết hạn:</span>
+                                                    {{ $item->voucher->end_date }}
                                                 </span>
                                             </span>
                                         @endif
@@ -95,7 +109,7 @@
                                 <div class="modal-body">
                                     <strong>Loại:</strong> {{ $item->voucher->name }}<br>
                                     <strong>Mô tả:</strong> {{ $item->voucher->description }}<br>
-                                    <strong>Mã giảm giá:</strong> {{ $item->vourcher_code }}<br>
+                                    <strong>Mã giảm giá:</strong> {{ $item->voucher->code }}<br>
                                     <strong>Giảm:</strong>
                                     @if ($item->voucher->discount_type === 'PERCENTAGE')
                                         {{ number_format($item->voucher->discount_value, 0) }}%
@@ -104,16 +118,16 @@
                                     @endif
                                     <br>
                                     <strong>Áp dụng cho đơn:</strong>
-                                    {{ $item->voucher->min_order_value . ' - ' . $item->voucher->max_order_value . ' VND' }}<br>
+                                    {{ number_format($item->voucher->min_order_value) . ' - ' . number_format($item->voucher->max_order_value) . ' VND' }}<br>
                                     <strong>Trạng thái:</strong>
-                                    @if ($item->status == 'ACTIVE' && $item->end_date > \Carbon\Carbon::now() && $item->voucher->limit > 0)
+                                    @if ($item->voucher->status == 'ACTIVE' && $item->voucher->end_date > \Carbon\Carbon::now() && $item->voucher->limit > 0)
                                         Còn hiệu lực
                                     @else
                                         Hết hiệu lực
                                     @endif
                                     <br>
-                                    <strong>Ngày hiệu lực:</strong> {{ $item->start_date }}<br>
-                                    <strong>Ngày hết hạn:</strong> {{ $item->end_date }}<br>
+                                    <strong>Ngày hiệu lực:</strong> {{ $item->voucher->start_date }}<br>
+                                    <strong>Ngày hết hạn:</strong> {{ $item->voucher->end_date }}<br>
                                 </div>
                                 <div class="modal-footer">
                                     <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Đóng</button>

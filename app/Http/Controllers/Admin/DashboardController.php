@@ -116,8 +116,17 @@ class DashboardController extends Controller
 
         $feedbackCount = Feedback::whereNull('parent_feedback_id')->count();
 
+        
         // Sản phẩm hết hàng
-        $inactiveProducts = Product::where('status', 'IN_ACTIVE')->count();
+        $inactiveProductsCount = Product::with('productVariants')
+        ->get() // Lấy tất cả sản phẩm
+        ->filter(function ($product) {
+            // Tính tổng số lượng của tất cả biến thể của sản phẩm
+            $totalQuantity = $product->productVariants->sum('quantity');
+            // Kiểm tra nếu tổng số lượng = 0, thì sản phẩm này hết hàng
+            return $totalQuantity == 0;
+        })
+        ->count();
         return view(
             'admin.pages.dashboard.index',
             compact(
@@ -140,7 +149,7 @@ class DashboardController extends Controller
                 'labelsMonthlyRevenue',
                 'dataMonthlyRevenue',
                 'totalTodayRevenue',
-                'inactiveProducts'
+                'inactiveProductsCount'
             )
         );
     }

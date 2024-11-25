@@ -3,7 +3,6 @@
     404
 @endsection
 @section('content')
-    <!-- Error 404 Template 1 - Bootstrap Brain Component -->
     <div class="container">
         <div class="row">
             <div class="col-12">
@@ -14,7 +13,7 @@
                     </h2>
                     <h3 class="h2 mb-2">Ối! Lỗi rồi.</h3>
                     <p class="mb-5">Trang không tồn tại.</p>
-                    <a class="btn bsb-btn-5xl btn-dark rounded-pill fs-6 m-0 px-5" href="{{ route('test') }}"
+                    <a class="btn bsb-btn-5xl btn-dark rounded-pill fs-6 m-0 px-5" href="{{ route('home') }}"
                         role="button">Quay lại trang chủ</a>
                 </div>
             </div>

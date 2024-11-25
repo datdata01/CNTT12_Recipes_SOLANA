@@ -14,7 +14,7 @@ class AttributeController extends Controller
     {
         $attribute =  Attribute::query()
             ->orderBy('id', 'asc')
-            ->paginate(10);
+            ->paginate(12);
 
         return view("admin.pages.attributes.attribute.index",['attribute' => $attribute]);
     }

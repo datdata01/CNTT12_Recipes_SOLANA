@@ -20,7 +20,7 @@ class AttributeValueController extends Controller
         $listAttributes = $attributeModel;
         $attributeValueModel =  AttributeValue::query()
             ->orderBy('id', 'asc')
-            ->paginate(4);
+            ->paginate(12);
         $listAttributeValues = $attributeValueModel;
         return view('admin.pages.attributes.attributeValue.index', [
             'listAttributes' => $listAttributes,

@@ -14,7 +14,7 @@ class VoucherController extends Controller
 {
     public function index()
     {
-        $getAllVoucher = Voucher::latest('id')->paginate(10);
+        $getAllVoucher = Voucher::latest('id')->paginate(12);
         return view('admin.pages.voucher.index', compact('getAllVoucher'));
     }
 
@@ -65,6 +65,7 @@ class VoucherController extends Controller
             'max_order_value' => $request->max_order_value,
             'status' => $request->status,
             'type' => $request->type,
+            'limited_uses' => $request->limited_uses,
         ]);
 
         toastr("Thêm thành công dữ liệu voucher", NotificationInterface::SUCCESS, "Thành công !", [
@@ -72,7 +73,7 @@ class VoucherController extends Controller
             "progressBar" => true,
             "timeOut" => "3000",
         ]);
-        return back();
+        return redirect()->route('voucher.index');
     }
 
     public function show(string $id) {}
@@ -104,6 +105,7 @@ class VoucherController extends Controller
             'max_order_value' => $request->max_order_value,
             'status' => $request->status,
             'type' => $request->type,
+            'limited_uses' => $request->limited_uses,
         ];
 
         $updateSuccess = $voucher->update($dataUpdate);
@@ -114,7 +116,7 @@ class VoucherController extends Controller
                 "progressBar" => true,
                 "timeOut" => "3000",
             ]);
-            return redirect()->route('voucher.index');
+            return back();
         }
         toastr("Cập nhật không thành công !", NotificationInterface::ERROR, "Thất bại !", [
             "closeButton" => true,
@@ -135,7 +137,7 @@ class VoucherController extends Controller
                 "progressBar" => true,
                 "timeOut" => "3000",
             ]);
-            return redirect()->route('voucher.index');
+            return back();
         }
 
         // Kiểm tra xem voucher có bản ghi liên quan trong voucher_usages không
@@ -162,6 +164,6 @@ class VoucherController extends Controller
             ]);
         }
 
-        return redirect()->route('voucher.index');
+        return back();
     }
 }

@@ -44,7 +44,8 @@
                                                             data-value="{{ $key }}" id="{{ $key }}"
                                                             type="radio"
                                                             @if ($item['default'] == 1) checked="checked" @endif
-                                                            name="address_user_id">
+                                                            name="address_user_id"
+                                                            onclick="setDefaultAddress({{ $item->id }}, {{ $item->user_id }})">
                                                     </span>
                                                     <span class="address-detail">
 
@@ -160,6 +161,41 @@
                         console.log(discountValue);
                         const discountType = $(this).data('discount-type');
                         console.log(discountType);
+
+                        const minAmount = parseFloat($(this).data('min-amount'));
+                        const maxAmount = parseFloat($(this).data('max-amount'));
+
+                        const totalAmountOld = $('input[name="total_amount"]').val();
+                        console.log("xyz", totalAmountOld);
+
+                        const startDate = new Date($(this).data('start-date'));
+                        const endDate = new Date($(this).data('end-date'));
+                        const status = $(this).data('status');
+                        const limitedUses = $(this).data('limited-uses');
+                        const used = $(this).data('used');
+                        // Lấy ngày hiện tại
+                        const now = new Date();
+
+                        // Kiểm tra điều kiện voucher không khả dụng
+                        if (startDate > now || endDate < now || status ===
+                            'IN_ACTIVE') {
+                            alert('Mã giảm giá không khả dụng');
+                            return;
+                        }
+
+                        // Kiểm tra nếu mã giảm giá đã hết lượt sử dụng
+                        if (limitedUses == used) {
+                            alert('Mã giảm giá này đã hết lượt sử dụng');
+                            return;
+                        }
+
+                        // Kiểm tra nếu tổng giá nằm ngoài khoảng áp dụng
+                        if (totalAmountOld < minAmount || totalAmountOld > maxAmount) {
+                            alert(
+                                `Mã giảm giá chỉ áp dụng cho tổng giá từ ${minAmount.toLocaleString()} VND đến ${maxAmount.toLocaleString()} VND.`
+                            );
+                            return;
+                        }
 
                         // Hiển thị thẻ mã giảm giá đã áp dụng và ẩn ô input
                         $('#coupon-display').show();
@@ -363,12 +399,21 @@
 
             // Tạo phần nhập mã giảm giá và nút chọn
             const ul = $("<ul>");
+
+            const liLink = $("<li>").addClass("d-flex justify-content-end");
+            const link = $("<a>")
+                .attr("data-bs-toggle", "modal")
+                .attr("data-bs-target", "#voucherModal")
+                .text("Kho ưu đãi >>");
+            liLink.append(link);
+            ul.append(liLink);
+
             const li = $("<li>");
 
             const span = $("<span>");
             const input = $("<input>")
                 .attr("type", "text")
-                .attr("id", "coupon-code-input")
+                .attr("id", "voucher-code-input")
                 .attr("placeholder", "Sử dụng mã giảm giá");
 
             const icon = $("<i>")
@@ -377,15 +422,14 @@
 
             const selectButton = $("<button>")
                 .attr("type", "button")
+                .attr("id", "apply")
                 .css({
                     "font-size": "14px",
                     padding: "5px",
                     width: "107px"
                 })
                 .addClass("btn w-50%")
-                .attr("data-bs-toggle", "modal")
-                .attr("data-bs-target", "#voucherModal")
-                .text("Chọn");
+                .text("Áp dụng");
 
             span.append(input, icon);
             li.append(span, selectButton);
@@ -405,7 +449,13 @@
                 .attr("name", "id_voucherUsage")
                 .attr("value", "");
 
-            couponBox.append(hiddenInput,hiddenInputUsage);
+            const hiddenInputIdUser = $("<input>")
+                .attr("type", "hidden")
+                .attr("id", "user-id")
+                .attr("name", "user-id")
+                .attr("value", "{{ Auth::id() }}");
+
+            couponBox.append(hiddenInput, hiddenInputUsage, hiddenInputIdUser);
 
             // tạo modal
             const modalHtml = `
@@ -439,34 +489,56 @@
             // Chèn dữ liệu từ vouchers vào trong modal
             vouchers.forEach(item => {
                 const voucher = item.voucher;
+
+                // Kiểm tra điều kiện ngày và trạng thái
+                const now = new Date();
+                const startDate = new Date(voucher.start_date);
+                const endDate = new Date(voucher.end_date);
+                const isInactive = voucher.status !== 'ACTIVE' || now < startDate || now > endDate ||
+                    (voucher.limited_uses && item.used >= voucher.limited_uses )|| voucher.limit == 0 ||
+                    totalAmount < voucher.min_order_value ||
+                    totalAmount > voucher.max_order_value;
+
+                // Định dạng giá trị giảm giá
                 const discountValue = voucher.discount_type === 'PERCENTAGE' ?
                     `${parseInt(voucher.discount_value)}%` :
                     `${parseFloat(voucher.discount_value).toLocaleString('vi-VN')} VND`;
 
+                // Tạo HTML voucher với đầy đủ dữ liệu
                 const voucherHtml = `
                 <div class="col-6 mb-3">
-                    <div class="border border-primary rounded shadow-sm p-3 bg-light d-flex justify-content-between align-items-center">
+                    <div class="border ${isInactive ? 'border-secondary' : 'border-primary'} rounded shadow-sm p-3 
+                        ${isInactive ? 'bg-light text-muted' : 'bg-light text-dark'} d-flex justify-content-between align-items-center">
                         <div>
-                            <strong class="text-dark">${voucher.name}</strong>
+                            <strong class="${isInactive ? 'text-muted' : 'text-dark'}">${voucher.name}</strong>
                             <p class="mb-0">Giảm: ${discountValue}</p>
+                            <p class="mb-0">Hạn đến: ${voucher.end_date}</p>
                         </div>
-                        <button type="button" class="btn btn-primary apply-coupon" 
+                        <button type="button" class="btn ${isInactive ? 'btn-secondary' : 'btn-primary'} apply-coupon" 
                             data-voucher-name="${voucher.name}"
                             data-id="${item.id}"
                             data-voucher-id="${voucher.id}"
                             data-discount-value="${voucher.discount_value}"
-                            data-discount-type="${voucher.discount_type}">
+                            data-discount-type="${voucher.discount_type}"
+                            data-min-amount="${voucher.min_order_value}"
+                            data-max-amount="${voucher.max_order_value}"
+                            data-start-date="${voucher.start_date}"
+                            data-end-date="${voucher.end_date}"
+                            data-status="${voucher.status}"
+                            data-limited-uses="${voucher.limited_uses}"
+                            data-used="${item.used}"
+                            ${isInactive ? 'disabled' : ''}>
                             Áp dụng
                         </button>
                     </div>
                 </div>`;
 
+                // Thêm vào danh sách voucher
                 $("#voucher-list").append(voucherHtml);
             });
+
+
         }
-
-
-
 
 
         // lay dia chi them moi
@@ -511,4 +583,26 @@
             }
         });
     });
+
+    function setDefaultAddress(addressId, userId) {
+        $.ajax({
+            url: '/api/profile/address/set-default/' + addressId,
+            type: 'POST',
+            data: {
+                user_id: userId, // Truyền user_id vào request
+            },
+            success: function(response) {
+                if (response.status === 'success') {
+                    Swal.fire(response.message, "", "success");
+                } else {
+                    alert('Có lỗi xảy ra');
+                }
+            },
+            error: function(xhr) {
+                alert('Có lỗi xảy ra');
+            }
+        });
+    }
 </script>
+
+@include('client.pages.check-out.apply-coupon')

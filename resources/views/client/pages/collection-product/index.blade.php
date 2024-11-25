@@ -35,13 +35,13 @@
                                                     <input class="custom-checkbox" id="category{{ $category->id }}"
                                                         type="checkbox" name="categories[]" value="{{ $category->id }}">
                                                     <label for="category{{ $category->id }}">{{ $category->name }}
-                                                        ({{ $category->products_count }})</label>
+                                                        ({{ $category->products_count }})
+                                                    </label>
                                                 </li>
                                             @endforeach
                                         </ul>
                                     </div>
                                 </div>
-
 
                                 <!-- Thuộc tính -->
                                 <h2 class="accordion-header">
@@ -52,26 +52,24 @@
                                 </h2>
                                 <div class="accordion-collapse show collapse" id="panelsStayOpen-collapseOne">
                                     <div class="accordion-body">
-                                        @foreach ($attributes as $attribute)
-                                            <!-- Hiển thị tên thuộc tính -->
-                                            <h6 style="margin-left: 10px">{{ ucfirst($attribute->name) }}</h6>
-                                            <div class="color-box">
+                                        <ul class="catagories-side theme-scrollbar">
+                                            @foreach ($attributes as $attribute)
+                                                <!-- Hiển thị tên thuộc tính -->
+                                                <h6 style="margin-left: 10px">{{ ucfirst($attribute->name) }}</h6>
                                                 <!-- Lặp qua các giá trị của thuộc tính -->
                                                 @foreach ($attribute->attributeValues as $attributeValue)
-                                                    <div style="padding: 0 10px" class="color-item">
+                                                    <li>
                                                         <input class="custom-checkbox"
                                                             id="attribute{{ $attributeValue->id }}" type="checkbox"
                                                             name="attributes[]" value="{{ $attributeValue->id }}">
                                                         <label
                                                             for="attribute{{ $attributeValue->id }}">{{ $attributeValue->name }}</label>
-                                                    </div>
+                                                    </li>
                                                 @endforeach
-                                            </div><br>
-                                        @endforeach
+                                            @endforeach
+                                        </ul>
                                     </div>
                                 </div>
-
-
                                 <!-- Lọc giá -->
                                 <h2 class="accordion-header">
                                     <button class="accordion-button" data-bs-toggle="collapse"
@@ -109,11 +107,21 @@
                                 </h2>
                                 <div class="accordion-collapse show collapse" id="panelsStayOpen-collapseSix">
                                     <div class="accordion-body">
-                                        <ul class="categories-side">
+                                        <ul class="categories-side d-flex">
+                                            <li class="me-3">
+                                                <input class="custom-radio" id="all" type="radio"
+                                                    name="stock_status" value="all" checked>
+                                                <label for="all">Tất cả</label>
+                                            </li>
+                                            <li class="me-3">
+                                                <input class="custom-radio" id="in_stock" type="radio"
+                                                    name="stock_status" value="in_stock">
+                                                <label for="in_stock">Còn hàng</label>
+                                            </li>
                                             <li>
-                                                <input class="custom-radio" id="inStock" type="radio"
-                                                    name="availability" value="in_stock" checked>
-                                                <label for="inStock">Còn hàng</label>
+                                                <input class="custom-radio" id="out_of_stock" type="radio"
+                                                    name="stock_status" value="out_of_stock">
+                                                <label for="out_of_stock">Hết hàng</label>
                                             </li>
                                         </ul>
                                     </div>
@@ -127,7 +135,8 @@
                             </div>
 
                             <div class="accordion-item">
-                                <h2 class="accordion-header tags-header"><button class="accordion-button"><span>Vận chuyển &
+                                <h2 class="accordion-header tags-header"><button class="accordion-button"><span>Vận chuyển
+                                            &
                                             Giao hàng</span><span></span></button></h2>
                                 <div class="accordion-collapse show collapse" id="panelsStayOpen-collapseSeven">
                                     <div class="accordion-body">
@@ -160,7 +169,8 @@
                 <div class="col-xl-9">
                     <div class="sticky">
                         <div style="padding-left: 800px" class="top-filter-menu">
-                            <div> <a class="filter-button btn">
+                            <div>
+                                <a class="filter-button btn">
                                     <h6> <i class="iconsax" data-icon="filter"></i>Filter Menu </h6>
                                 </a>
                                 <div class="category-dropdown">
@@ -222,6 +232,7 @@
     <script>
         const productRoute = '{{ url('product') }}'; // Định nghĩa route cơ bản cho sản phẩm
 
+        // Hàm xử lý gửi yêu cầu lọc sản phẩm
         function handleSubmit() {
             const selectedCategories = Array.from(document.querySelectorAll('input[name="categories[]"]:checked'))
                 .map(el => el.value);
@@ -229,7 +240,11 @@
                 .map(el => el.value);
             const minPrice = document.getElementById('minRange').value;
             const maxPrice = document.getElementById('maxRange').value;
-            const sort = document.getElementById('cars').value; // Lấy giá trị từ dropdown sắp xếp
+            const sort = document.getElementById('cars').value;
+            const stockStatus = document.querySelector('input[name="stock_status"]:checked')?.value;
+
+            const notificationContainer = document.querySelector('#notification');
+            notificationContainer.style.display = 'none';
 
             fetch('{{ route('product.filter') }}', {
                     method: 'POST',
@@ -242,49 +257,64 @@
                         attributes: selectedAttributes,
                         minPrice: minPrice,
                         maxPrice: maxPrice,
-                        sort: sort // Gửi thông tin sắp xếp
+                        stock_status: stockStatus,
+                        sort: sort,
                     })
                 })
                 .then(response => {
                     if (!response.ok) {
                         return response.json().then(error => {
-                            throw new Error(error.message || 'Lỗi không xác định')
+                            throw new Error(error.message || 'Lỗi không xác định');
                         });
                     }
                     return response.json();
                 })
                 .then(data => {
-                    const productListContainer = document.querySelector('#productList');
-                    productListContainer.innerHTML = data.html; // Chèn HTML trả về từ server vào #productList
+                    document.querySelector('#productList').innerHTML = data.html;
 
-                    // Hiển thị thông báo dựa trên số lượng sản phẩm
-                    const notificationContainer = document.querySelector(
-                    '#notification'); // Đảm bảo có thẻ #notification trong HTML
                     if (data.count > 0) {
-                        notificationContainer.innerText = `Tìm thấy ${data.count} sản phẩm phù hợp với tiêu chí lọc.`;
-                        notificationContainer.style.display = 'block'; // Hiện thông báo
+                        notificationContainer.innerText = `Tìm thấy ${data.count} sản phẩm phù hợp.`;
+                        notificationContainer.style.display = 'block';
                     } else {
                         notificationContainer.innerText = data.message;
-                        notificationContainer.style.display = 'block'; // Hiện thông báo
+                        notificationContainer.style.display = 'block';
                     }
+
+                    // Khởi tạo lại sự kiện sắp xếp sau khi danh sách sản phẩm được cập nhật
+                    initSortEvent();
                 })
                 .catch(error => {
-                    const productListContainer = document.querySelector('#productList');
-                    productListContainer.innerHTML =
-                        `<p>Đã xảy ra lỗi trong quá trình tải sản phẩm: ${error.message}</p>`;
+                    document.querySelector('#productList').innerHTML =
+                        `<p>Đã xảy ra lỗi: ${error.message}</p>`;
                 });
-
         }
 
-        document.getElementById('minRange').addEventListener('input', function() {
-            document.getElementById('minPriceDisplay').innerText = this.value;
-        });
+        // Hàm khởi tạo sự kiện cho dropdown sắp xếp
+        function initSortEvent() {
+            const sortSelect = document.getElementById('cars');
+            if (sortSelect) {
+                sortSelect.removeEventListener('change', handleSubmit); // Gỡ sự kiện cũ để tránh chồng lặp
+                sortSelect.addEventListener('change', handleSubmit);
+            }
+        }
 
-        document.getElementById('maxRange').addEventListener('input', function() {
-            document.getElementById('maxPriceDisplay').innerText = this.value;
-        });
+        // Hàm cập nhật hiển thị giá trị tối thiểu
+        function updateMinPriceDisplay() {
+            const minPrice = document.getElementById('minRange').value;
+            document.getElementById('minPriceDisplay').innerText = parseInt(minPrice).toLocaleString('vi-VN');
+        }
 
-        // Thêm sự kiện cho dropdown sắp xếp
-        document.getElementById('cars').addEventListener('change', handleSubmit);
+        // Hàm cập nhật hiển thị giá trị tối đa
+        function updateMaxPriceDisplay() {
+            const maxPrice = document.getElementById('maxRange').value;
+            document.getElementById('maxPriceDisplay').innerText = parseInt(maxPrice).toLocaleString('vi-VN');
+        }
+
+        // Khởi tạo sự kiện khi trang được tải
+        document.addEventListener('DOMContentLoaded', () => {
+            initSortEvent();
+            document.getElementById('minRange').addEventListener('input', updateMinPriceDisplay);
+            document.getElementById('maxRange').addEventListener('input', updateMaxPriceDisplay);
+        });
     </script>
 @endsection

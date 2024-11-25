@@ -28,7 +28,7 @@ class FeedbackController extends Controller
 
         $feedbacks = Feedback::with(['orderItem.productVariant.attributeValues.attribute', 'orderItem.productVariant.product', 'user', 'replies'])
             ->whereNull('parent_feedback_id')
-            ->paginate(10);
+            ->paginate(12);
 
         $feedbackCount = $feedbacks->count();
 

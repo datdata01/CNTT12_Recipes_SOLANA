@@ -44,7 +44,8 @@
                                                             data-value="{{ $key }}" id="{{ $key }}"
                                                             type="radio"
                                                             @if ($item['default'] == 1) checked="checked" @endif
-                                                            name="address_user_id">
+                                                            name="address_user_id"
+                                                            onclick="setDefaultAddress({{ $item->id }}, {{ $item->user_id }})">
                                                     </span>
                                                     <span class="address-detail">
 
@@ -166,27 +167,29 @@
                                                 <strong id="coupon-name" class="text-dark">Tên mã ở đây</strong>
                                             </div>
                                             <button id="remove-coupon" class="btn btn-danger btn-sm"
-                                                style="font-size: 14px;">
-                                                X
-                                            </button>
+                                                style="font-size: 14px;">X</button>
                                         </div>
                                     </div>
 
 
                                     <ul>
+                                        <li class="d-flex justify-content-end">
+                                            <a data-bs-toggle="modal" data-bs-target="#voucherModal">Kho ưu đãi >></a>
+                                        </li>
+
                                         <li>
                                             <span>
-                                                <input type="text" id="coupon-code-input"
+                                                <input type="text" id="voucher-code-input"
                                                     placeholder="Sử dụng mã giảm giá">
                                                 <i class="iconsax me-1" data-icon="tag-2"></i>
                                             </span>
                                             <button type="button" style="font-size: 14px; padding: 5px; width: 107px;"
-                                                class="btn w-50%" data-bs-toggle="modal" data-bs-target="#voucherModal">
-                                                Chọn
+                                                id="apply" class="btn w-50%">
+                                                Áp dụng
                                             </button>
                                         </li>
                                     </ul>
-
+                                    <input type="hidden" id="user-id" name="user-id" value="{{ Auth::id() }}">
                                     <!-- Thêm input ẩn để lưu voucher_id -->
                                     <input type="hidden" id="voucher-id-input" name="voucher_id" value="">
                                     <input type="hidden" id="id-input" name="id_voucherUsage" value="">
@@ -209,11 +212,28 @@
                                                         <div class="row">
                                                             @foreach ($voucher as $item)
                                                                 <div class="col-6 mb-3">
+                                                                    @php
+                                                                        $isInactive =
+                                                                            $item->voucher->status === 'IN_ACTIVE' ||
+                                                                            strtotime($item->voucher->start_date) >
+                                                                                time() ||
+                                                                            strtotime($item->voucher->end_date) <
+                                                                                time() ||
+                                                                            ($item->voucher->limited_uses &&
+                                                                                $item->used >=
+                                                                                    $item->voucher->limited_uses) ||
+                                                                            $item->voucher->limit == 0 ||
+                                                                            $totalAmount <
+                                                                                $item->voucher->min_order_value ||
+                                                                            $totalAmount >
+                                                                                $item->voucher->max_order_value;
+                                                                    @endphp
                                                                     <div
-                                                                        class="border border-primary rounded shadow-sm p-3 bg-light d-flex justify-content-between align-items-center">
+                                                                        class="border rounded shadow-sm p-3 d-flex justify-content-between align-items-center 
+                                                                           {{ $isInactive ? 'border-secondary bg-light' : 'border-primary bg-light' }}">
                                                                         <div>
                                                                             <strong
-                                                                                class="text-dark">{{ $item->voucher->name }}</strong>
+                                                                                class="{{ $isInactive ? 'text-muted' : 'text-dark' }}">{{ $item->voucher->name }}</strong>
                                                                             <p class="mb-0">
                                                                                 Giảm:
                                                                                 @if ($item->voucher->discount_type === 'PERCENTAGE')
@@ -223,17 +243,25 @@
                                                                                     VND
                                                                                 @endif
                                                                             </p>
+                                                                            <p>Hạn đến: {{ $item->voucher->end_date }}</p>
                                                                         </div>
                                                                         <button type="button"
-                                                                            class="btn btn-primary apply-coupon"
+                                                                            class="btn {{ $isInactive ? 'btn-secondary' : 'btn-primary' }} apply-coupon"
                                                                             data-voucher-name="{{ $item->voucher->name }}"
                                                                             data-id="{{ $item->id }}"
                                                                             data-voucher-id="{{ $item->voucher->id }}"
                                                                             data-discount-value="{{ $item->voucher->discount_value }}"
-                                                                            data-discount-type="{{ $item->voucher->discount_type }}">
+                                                                            data-discount-type="{{ $item->voucher->discount_type }}"
+                                                                            data-min-amount="{{ $item->voucher->min_order_value }}"
+                                                                            data-max-amount="{{ $item->voucher->max_order_value }}"
+                                                                            data-start-date="{{ $item->voucher->start_date }}"
+                                                                            data-end-date="{{ $item->voucher->end_date }}"
+                                                                            data-status="{{ $item->voucher->status }}"
+                                                                            data-limited-uses="{{ $item->voucher->limited_uses }}"
+                                                                            data-used="{{ $item->used }}"
+                                                                            {{ $isInactive ? 'disabled' : '' }}>
                                                                             Áp dụng
                                                                         </button>
-
                                                                     </div>
                                                                 </div>
                                                             @endforeach
@@ -333,12 +361,44 @@
         // Lắng nghe sự kiện nhấn nút "Áp dụng" trong modal
         document.querySelectorAll('.apply-coupon').forEach(button => {
             button.addEventListener('click', function() {
-                // Lấy mã giảm giá từ nút được nhấn
+                // Lấy các thông tin mã giảm giá từ nút được nhấn
                 const voucherName = this.getAttribute('data-voucher-name');
                 const Id = this.getAttribute('data-id'); // Lấy voucher_id
                 const voucherId = this.getAttribute('data-voucher-id'); // Lấy voucher_id
                 const discountValue = parseFloat(this.getAttribute('data-discount-value'));
                 const discountType = this.getAttribute('data-discount-type');
+                const minAmount = parseFloat(this.getAttribute(
+                    'data-min-amount')); // Khoảng giá tối thiểu
+                const maxAmount = parseFloat(this.getAttribute(
+                    'data-max-amount')); // Khoảng giá tối đa
+                // Lấy tổng giá hiện tại
+                const totalAmount = parseFloat(document.querySelector(
+                    'input[name="totalAmount"]').value);
+                const limitedUses = this.getAttribute('data-limited-uses')
+                const used = this.getAttribute('data-used')
+                const startDate = new Date(this.getAttribute('data-start-date')).getTime();
+                const endDate = new Date(this.getAttribute('data-end-date')).getTime();
+                const status = this.getAttribute('data-status'); // Lấy giá trị trạng thái
+                const now = Date.now(); // Lấy thời gian hiện tại dưới dạng timestamp
+
+                // Kiểm tra điều kiện
+                if (startDate > now || endDate < now || status === 'IN_ACTIVE') {
+                    alert('Mã giảm giá không khả dụng');
+                    return;
+                }
+
+                if (limitedUses == used) {
+                    alert('Mã giảm giá này đã hết lượt sử dụng');
+                    return;
+                }
+
+                // Kiểm tra nếu tổng giá nằm ngoài khoảng áp dụng
+                if (totalAmount < minAmount || totalAmount > maxAmount) {
+                    alert(
+                        `Mã giảm giá chỉ áp dụng cho tổng giá từ ${minAmount.toLocaleString()} VND đến ${maxAmount.toLocaleString()} VND.`
+                    );
+                    return; // Dừng nếu không thỏa mãn điều kiện
+                }
 
                 // Hiển thị thẻ mã giảm giá đã áp dụng và ẩn ô input
                 document.getElementById('coupon-display').style.display = 'block';
@@ -347,14 +407,9 @@
                 // Cập nhật voucher_id vào input ẩn
                 document.getElementById('voucher-id-input').value =
                     voucherId; // Gán voucher_id vào input ẩn
+                document.getElementById('id-input').value = Id; // Gán voucher_id vào input ẩn
 
-                document.getElementById('id-input').value =
-                    Id; // Gán voucher_id vào input ẩn
-
-                // Cập nhật giảm giá vào tổng giá
-                const totalAmount = parseFloat(document.querySelector(
-                    'input[name="totalAmount"]').value);
-
+                // Tính toán giảm giá
                 let discountAmount = 0;
                 if (discountType === 'PERCENTAGE') {
                     discountAmount = (discountValue / 100) *
@@ -395,8 +450,6 @@
 
             // Làm trống voucher_id khi xoá mã giảm giá
             document.getElementById('voucher-id-input').value = '';
-
-            // Làm trống id khi xoá mã giảm giá
             document.getElementById('id-input').value = '';
 
             // Cập nhật lại tổng giá khi xoá mã giảm giá
@@ -417,4 +470,25 @@
             document.getElementById('coupon-code-input').style.display = 'block';
         });
     });
+
+    function setDefaultAddress(addressId, userId) {
+        $.ajax({
+            url: '/api/profile/address/set-default/' + addressId,
+            type: 'POST',
+            data: {
+                user_id: userId, // Truyền user_id vào request
+            },
+            success: function(response) {
+                if (response.status === 'success') {
+                    Swal.fire(response.message, "", "success");
+                } else {
+                    alert('Có lỗi xảy ra');
+                }
+            },
+            error: function(xhr) {
+                alert('Có lỗi xảy ra');
+            }
+        });
+    }
 </script>
+@include('client.pages.check-out.apply-coupon')

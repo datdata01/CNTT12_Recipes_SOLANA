@@ -56,27 +56,29 @@
                                 </span>
                             </td>
                             <td>{{ $voucher->voucher_used }}</td>
-                            <td class="d-flex justify-content-center">
-                                <div class="me-2">
-                                    <form action="{{ route('voucher.destroy', $voucher->id) }}" method="post">
-                                        @csrf
-                                        @method('delete')
-                                        <button class="btn btn-danger"
-                                            onclick="return confirm('Bạn có chắc muốn xóa mã giảm giá này không ?')">
-                                            <i class="fa fa-trash" aria-hidden="true"></i>
+                            <td>
+                                <div class="d-flex justify-content-center">
+                                    <div>
+                                        <button type="button" class="btn btn-primary" data-toggle="modal"
+                                            data-target="#voucherDetailModal-{{ $voucher->id }}">
+                                            <i class="fa fa-info-circle"></i>
                                         </button>
-                                    </form>
-                                </div>
-                                <div class="me-2">
-                                    <a href="{{ route('voucher.edit', $voucher->id) }}" class="btn btn-warning">
-                                        <i class="fa fa-pencil-square-o" aria-hidden="true"></i>
-                                    </a>
-                                </div>
-                                <div>
-                                    <button type="button" class="btn btn-primary" data-toggle="modal"
-                                        data-target="#voucherDetailModal-{{ $voucher->id }}">
-                                        <i class="fa fa-info-circle"></i>
-                                    </button>
+                                    </div>
+                                    <div class="mx-1">
+                                        <a href="{{ route('voucher.edit', $voucher->id) }}" class="btn btn-warning">
+                                            <i class="fa fa-pencil-square-o" aria-hidden="true"></i>
+                                        </a>
+                                    </div>
+                                    <div>
+                                        <form action="{{ route('voucher.destroy', $voucher->id) }}" method="post">
+                                            @csrf
+                                            @method('delete')
+                                            <button class="btn btn-danger"
+                                                onclick="return confirm('Bạn có chắc muốn xóa mã giảm giá này không ?')">
+                                                <i class="fa fa-trash" aria-hidden="true"></i>
+                                            </button>
+                                        </form>
+                                    </div>
                                 </div>
                             </td>
                         </tr>

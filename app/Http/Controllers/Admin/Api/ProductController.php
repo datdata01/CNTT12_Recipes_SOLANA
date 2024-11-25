@@ -36,7 +36,7 @@ class ProductController extends Controller
             }
 
             // Phân trang
-            $products = $query->paginate(5);
+            $products = $query->paginate(12);
 
             if ($products->isEmpty()) {
                 return response()->json([

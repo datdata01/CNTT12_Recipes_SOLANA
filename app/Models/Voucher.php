@@ -22,12 +22,13 @@ class Voucher extends Model
         'voucher_used',
         'start_date',
         'end_date',
-        'type'
+        'type',
+        'limited_uses'
     ];
     public $timestamps = false; 
 
     // một Vourcher có nhiều VourcherUsage
-    public function vourcherUsages()
+    public function voucherUsages()
     {
         return $this->hasMany(VoucherUsage::class);
     }

@@ -31,7 +31,7 @@ class OrderController extends Controller
                 });
             }
 
-            $orders = $query->paginate(5);
+            $orders = $query->paginate(12);
 
             return response()->json([
                 'orders' => $orders,

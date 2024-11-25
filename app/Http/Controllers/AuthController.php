@@ -10,7 +10,6 @@ use App\Http\Requests\Auth\RegisterRequest;
 use App\Http\Requests\Auth\ChangePassRequest;
 use App\Mail\FogotPass;
 use App\Mail\VerifyAccount;
-use App\Models\Role;
 use App\Models\User;
 use App\Models\Voucher;
 use App\Models\VoucherUsage;
@@ -23,6 +22,7 @@ use Mail;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use Spatie\Permission\Models\Role;
 
 class AuthController extends Controller
 {
@@ -50,7 +50,7 @@ class AuthController extends Controller
             return redirect()->route('auth.login-view');
         }
         if ($user->email_verified_at == null) {
-            Mail::to($user->email)->send(new VerifyAccount($user));
+            VerifyEmailEvent::dispatch($user);
             // Thông báo đăng ký thành công và yêu cầu xác thực email
             toastr("Vui lòng kiểm tra email để xác thực tài khoản", NotificationInterface::SUCCESS, "Xác thực email", [
                 "closeButton" => true,
@@ -123,15 +123,6 @@ class AuthController extends Controller
 
         // Thực hiện các thao tác trong một giao dịch
         DB::transaction(function () use ($validatedData) {
-            // Kiểm tra và thêm vai trò mặc định nếu chưa tồn tại
-            $role = Role::firstOrCreate(
-                ['id' => 1],
-                ['name' => 'User', 'description' => 'Vai trò mặc định cho người dùng']
-            );
-            Role::firstOrCreate(
-                ['id' => 2],
-                ['name' => 'Admin', 'description' => 'Vai trò Quản lý']
-            );
             // Tạo người dùng mới từ dữ liệu đã validate
             $user = User::create([
                 'full_name' => $validatedData['full_name'],
@@ -143,14 +134,12 @@ class AuthController extends Controller
             ]);
 
             // Gán vai trò mặc định cho người dùng
-            $user->roles()->sync([$role->id]);
+            $user->roles()->sync([3]);
 
             // Gửi email xác thực tài khoản
-//            Mail::to($user->email)->send(new VerifyAccount($user));
+            //            Mail::to($user->email)->send(new VerifyAccount($user));
             // gui bang event
             VerifyEmailEvent::dispatch($user);
-
-
         });
 
         // Thông báo đăng ký thành công và yêu cầu xác thực email
@@ -175,19 +164,21 @@ class AuthController extends Controller
             $voucher = Voucher::where('type', 'REGISTER')->first();
 
             if ($voucher) {
-                $startDate = Carbon::now()->lt($voucher->start_date) ? $voucher->start_date : Carbon::now();
-
-                $data = [
-                    "user_id"       => $acc->id,
-                    "voucher_id"    => $voucher->id,
-                    "vourcher_code" => strtoupper(Str::random(8)),
-                    "start_date"    => $startDate,
-                    "end_date"      => $voucher->end_date,
-                    "status"        => "ACTIVE",
-                ];
-
-                VoucherUsage::create($data);
+                // Kiểm tra xem đã tồn tại bản ghi chưa
+                $existingUsage = VoucherUsage::where('user_id', $acc->id)
+                    ->where('voucher_id', $voucher->id)
+                    ->first();
+            
+                if (!$existingUsage) {
+                    // Nếu chưa có thì tạo mới
+                    $data = [
+                        "user_id"    => $acc->id,
+                        "voucher_id" => $voucher->id,
+                    ];
+                    VoucherUsage::create($data);
+                }
             }
+            
             // Thông báo xác thực thành công
             toastr("Tài khoản của bạn đã được xác thực thành công! <br> Vui lòng đăng nhập tài khoản", NotificationInterface::SUCCESS, "Xác thực tài khoản thành công", [
                 "closeButton" => true,
@@ -241,9 +232,9 @@ class AuthController extends Controller
             $user->password_changed_at = now(); // Cập nhật thời gian thực
             $user->save(); // Lưu tất cả thay đổi
             // Gửi email chứa mật khẩu mới
-//            Mail::to($user->email)->send(new FogotPass($user, $newPassword));
+            //            Mail::to($user->email)->send(new FogotPass($user, $newPassword));
             // gui bang event
-            ForgotPasswordEvent::dispatch($user,$newPassword);
+            ForgotPasswordEvent::dispatch($user, $newPassword);
             // Thông báo thành công
             toastr('Vui lòng kiểm tra email để nhận mật khẩu mới', NotificationInterface::SUCCESS, 'Lấy lại mật khẩu thành công', [
                 "closeButton" => true,

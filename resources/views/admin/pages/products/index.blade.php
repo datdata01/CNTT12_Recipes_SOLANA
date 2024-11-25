@@ -100,7 +100,7 @@
                         response.products.data.forEach(function(product, index) {
                             $('#productData').append(`
                             <tr>
-                                <td>${(page - 1) * 5 + index + 1}</td>
+                                <td>${(page - 1) * 12 + index + 1}</td>
                                 <td>${product.code}</td>
                                 <td>
                                     ${product.image ? `<img src="/storage/${product.image}" alt="Ảnh" width="50px">` : ''}

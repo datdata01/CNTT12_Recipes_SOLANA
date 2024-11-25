@@ -15,7 +15,7 @@ class CategoryArticleController extends Controller
     {
         $categories = CategoryArticle::query()
             ->orderBy("id", "desc")
-            ->paginate(4);
+            ->paginate(12);
         return view("admin.pages.category.articles.index", ['listCategoryArticle' => $categories]);
     }
 

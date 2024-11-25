@@ -74,7 +74,9 @@ class ProductController extends Controller
             ->groupBy('products.id') // Nhóm đầy đủ các cột
             ->where('products.category_product_id', $categoryId) // Lọc cùng danh mục
             ->where('products.id', '!=', $id) // Loại trừ sản phẩm hiện tại
+            ->orderBy('products.created_at', 'desc') // Sắp xếp từ mới đến cũ
             ->get();
+
 
         $feedbacks = Feedback::with(['orderItem.productVariant.product', 'user', 'replies'])
             ->whereHas('orderItem.productVariant.product', function ($query) use ($id) {

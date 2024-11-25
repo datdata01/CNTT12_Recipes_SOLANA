@@ -51,8 +51,6 @@
                             @endforeach
                         </tbody>
                     </table>
-                </div>
-                <div class="d-flex justify-content-center">
                     {{ $listArticle->links() }}
                 </div>
             </div>

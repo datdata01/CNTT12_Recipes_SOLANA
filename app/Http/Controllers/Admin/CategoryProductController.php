@@ -13,7 +13,7 @@ class CategoryProductController extends Controller
 {
     public function index()
     {
-        $categories = CategoryProduct::orderBy("id", "desc")->paginate(4);
+        $categories = CategoryProduct::orderBy("id", "desc")->paginate(12);
         return view("admin.pages.category.products.index", ['listCateProduct' => $categories]);
     }
     public function store(CreateCategoryProductRequest $request)

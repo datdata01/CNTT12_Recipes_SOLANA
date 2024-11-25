@@ -78,9 +78,7 @@
                     @endforeach
                 </tbody>
             </table>
+            {{ $feedbacks->links() }}
         </div>
-    </div>
-    <div class="d-flex justify-content-end">
-        {{ $feedbacks->links() }}
     </div>
 @endsection
