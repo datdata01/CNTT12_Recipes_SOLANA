@@ -23,9 +23,9 @@ class ProductController extends Controller
     {
         $data = Product::with(['productImages', 'categoryProduct', 'productVariants'])
             ->latest('id')->paginate(5);
-
+        $categories = CategoryProduct::get();
         // dd($data->toArray());
-        return view('admin.pages.products.index', compact('data'));
+        return view('admin.pages.products.index', compact('data','categories'));
     }
 
     /**
@@ -209,8 +209,8 @@ class ProductController extends Controller
                     // In ra giá trị delete_variants để kiểm tra
                     ProductVariant::whereIn('id', $request->delete_variants)->delete();
                 }
-
-
+    
+                
 
                 // 5. Cập nhật hoặc tạo mới các biến thể sản phẩm còn tồn tại
                 if ($request->has('variants')) {

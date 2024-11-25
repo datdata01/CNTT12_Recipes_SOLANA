@@ -1,5 +1,6 @@
 @extends('admin.layouts.master')
 @section('title')
+Trang này để thử cho ae nhé :)))
 @endsection
 @section('content')
 <div class="col-lg-6">

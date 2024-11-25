@@ -45,8 +45,8 @@ class DashboardController extends Controller
         $deliveringOrders = Order::where('status', 'DELIVERING')->count();
         // Đếm số đơn hàng có status là "SHIPPED" đã giao
         $shippedOrders = Order::where('status', 'SHIPPED')->count();
-        // Đếm số đơn hàng có status là "CANCELLED" giao thất bại 
-        $cancelledOrders = Order::where('status', 'CANCELLED')->count();
+        // Đếm số đơn hàng có status là "CANCELLED" giao thất bại
+        $cancelledOrders = Order::where('status', 'CANCELED')->count();
 
         // Tính phần trăm đơn hàng hoàn thành thành công
         $successRate = $totalOrders > 0 ? ($completedOrders / $totalOrders) * 100 : 0;
@@ -64,16 +64,27 @@ class DashboardController extends Controller
 
 
         $salesData = Product::with(['productVariants'])->get();
-        // Lấy danh sách tên sản phẩm
-        $labels = $salesData->pluck('name');
-        // Lấy danh sách các số lượng bán (sold) của từng variants
-        $data = $salesData->map(function ($product) {
-            // Lấy tất cả các giá trị 'sold' của từng productVariants
-            return $product->productVariants->sum('sold');
+
+        // Tính tổng số lượng bán của từng sản phẩm
+        $processedData = $salesData->map(function ($product) {
+            return [
+                'code' => $product->code, // Mã sản phẩm
+                'name' => $product->name, // Tên sản phẩm
+                'sold' => $product->productVariants->sum('sold') // Tổng số lượng bán
+            ];
         });
 
+        // Lấy 10 sản phẩm bán nhiều nhất
+        $topProducts = $processedData->sortByDesc('sold')->take(12);
 
-        // tính số lượng tiền thu đc trong 1 tháng 
+        // Tách dữ liệu để truyền vào biểu đồ
+        $codes = $topProducts->pluck('code'); // Mã sản phẩm
+        $labels = $topProducts->pluck('name'); // Tên sản phẩm
+        $data = $topProducts->pluck('sold'); // Số lượng bán
+
+
+
+        // tính số lượng tiền thu đc trong 1 tháng
         $monthlyRevenue = Order::selectRaw('MONTH(created_at) as month, SUM(total_amount) as total_revenue')
             ->where('status', 'COMPLETED')
             ->whereYear('created_at', Carbon::now()->year) // Lọc trong năm hiện tại
@@ -124,6 +135,7 @@ class DashboardController extends Controller
                 'totalArticles',
                 'feedbackCount',
                 'labels',
+                'codes',
                 'data',
                 'labelsMonthlyRevenue',
                 'dataMonthlyRevenue',

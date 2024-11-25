@@ -23,6 +23,7 @@ class UpdateVoucherRequest extends FormRequest
     {
         return [
             'name' => 'required',
+            'code' => 'unique:vouchers,code,' . $this->route('voucher'),
             'description' => 'required',
             'limit' => 'required|integer|gt:0',
             'start_date' => 'required',
@@ -39,6 +40,8 @@ class UpdateVoucherRequest extends FormRequest
     {
         return [
             'name.required' => 'Không được bỏ trống trường dữ liệu',
+
+            'code.unique' => 'Mã code đã tồn tại. Vui lòng chọn mã khác.',
 
             'description.required' => 'Không được bỏ trống trường dữ liệu',
 

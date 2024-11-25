@@ -28,7 +28,7 @@
                                 @csrf
                                 <div class="col-12">
                                     <div class="form-floating"><input class="form-control"name="email" value="{{ old('email', Cookie::get('email')) }}" id="floatingInputValue"
-                                            type="email" placeholder="Nhập email của bạn"><label
+                                            type="text" placeholder="Nhập email của bạn"><label
                                             for="floatingInputValue">Nhập email</label></div>
                                             @error('email')
                                     <div class="text-danger">{{ $message }}</div>
@@ -64,4 +64,22 @@
             </div>
         </div>
     </section>
+    @push('scripts')
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const inputs = document.querySelectorAll('input');
+    inputs.forEach(input => {
+        input.addEventListener('input', function () {
+            if (this.name === 'email') {
+                // Loại bỏ tất cả khoảng trắng vì email không hợp lệ khi có khoảng trắng
+                this.value = this.value.replace(/\s/g, '');
+            }else if (this.name === 'password' || this.name === 'password_confirmation') {
+                // Loại bỏ khoảng trắng đầu và cuối, giữ nguyên nội dung khác
+                this.value = this.value.trim();
+            }
+        });
+    });
+});
+</script>
+@endpush
 @endsection

@@ -68,7 +68,8 @@
                                             <td> </td>
                                             <td></td>
                                             <td class="total fw-bold">Tổng : </td>
-                                            <td class="total fw-bold">{{ number_format($data->total_amount) }} VND</td>
+                                            <td class="total fw-bold">
+                                                {{ number_format($data->total_amount + $data->discount_amount) }} VND</td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -87,7 +88,7 @@
                                 <li>
                                     <p class="fw-semibold">Tổng sản phẩm ({{ count($data->orderItems) }})</p>
                                     <h6>
-                                        <h5>{{ number_format($data->total_amount) }} VND</h5>
+                                        <h5>{{ number_format($data->total_amount + $data->discount_amount) }} VND</h5>
                                     </h6>
                                 </li>
                                 {{-- <li>
@@ -105,7 +106,7 @@
                                     <p>Including 10% VAT </p><span>$25.00</span>
                                 </li> --}}
                                 <li>
-                                    <p>Giảm giá</p><span>{{ number_format($data->discount_amount) }} VND</span>
+                                    <p>Giảm giá</p><span>{{ '-' . number_format($data->discount_amount) }} VND</span>
                                 </li>
                             </ul>
                             <div class="d-flex align-items-center justify-content-between">

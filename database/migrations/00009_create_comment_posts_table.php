@@ -17,8 +17,9 @@ return new class extends Migration
             $table->id();
             $table->foreignIdFor(Article::class)->constrained();
             $table->foreignIdFor(User::class)->constrained();
-            $table->bigInteger('parent_comment_id')->default(null);
+            $table->bigInteger('parent_comment_id')->nullable()->default(null);
             $table->text('comment');
+            $table->timestamp('deleted_at')->nullable();
             $table->timestamps();
         });
     }

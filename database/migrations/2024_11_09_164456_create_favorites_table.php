@@ -16,14 +16,9 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->foreignId('product_id')->constrained()->onDelete('cascade');
             $table->timestamps();
-
             $table->unique(['user_id', 'product_id']); // Đảm bảo mỗi sản phẩm chỉ được yêu thích một lần bởi một người dùng
         });
 
-        Schema::table('products', function (Blueprint $table) {
-            // Thêm cột 'view' kiểu integer để lưu số lượt xem sản phẩm
-            $table->integer('view')->default(0); // Đặt giá trị mặc định là 0
-        });
     }
 
     /**
@@ -32,9 +27,5 @@ return new class extends Migration
     public function down(): void
     {
         Schema::dropIfExists('favorites');
-        Schema::table('products', function (Blueprint $table) {
-            // Xóa cột 'view' khi rollback migration
-            $table->dropColumn('view');
-        });
     }
 };

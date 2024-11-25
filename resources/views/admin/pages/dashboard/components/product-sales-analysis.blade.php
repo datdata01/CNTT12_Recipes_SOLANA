@@ -19,15 +19,27 @@
     var salesChart = new Chart(ctx1, {
         type: 'bar',
         data: {
-            labels: @json($labels), // Dùng biến $labels từ Laravel Blade
+            labels: @json($codes), // Hiển thị mã sản phẩm dưới trục X
             datasets: [{
                 label: 'Số lượng bán',
-                data: @json($data), // Dùng biến $data từ Laravel Blade
-                backgroundColor: generateRandomColors(@json($data)
-                    .length), // Tạo màu ngẫu nhiên cho từng sản phẩm
+                data: @json($data), // Số lượng bán
+                backgroundColor: generateRandomColors(@json($data).length),
             }]
         },
         options: {
+            plugins: {
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            // Hiển thị số lượng và tên sản phẩm khi hover
+                            const names = @json($labels); // Truyền tên sản phẩm từ Blade
+                            const sold = context.raw; // Số lượng bán
+                            const index = context.dataIndex; // Lấy vị trí của cột
+                            return `${names[index]}, Số lượng bán: ${sold}`;
+                        }
+                    }
+                }
+            },
             scales: {
                 y: {
                     beginAtZero: true,
@@ -39,7 +51,7 @@
                 x: {
                     title: {
                         display: true,
-                        text: 'Sản phẩm'
+                        text: 'Mã sản phẩm (Top 10)'
                     }
                 }
             }

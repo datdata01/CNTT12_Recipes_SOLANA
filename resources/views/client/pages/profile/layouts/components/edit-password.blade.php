@@ -60,57 +60,89 @@
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
-    // Kiểm tra nếu có lỗi
-    @if ($errors->any())
-        @foreach ($errors->all() as $error)
-            Swal.fire({
-                title: "Lỗi!",
-                text: "{{ $error }}",
-                icon: "error"
-            });
-        @endforeach
-    @endif
-
-    // Kiểm tra độ dài mật khẩu mới
-    document.querySelector('input[name="new_password"]').addEventListener('input', function () {
-        const newPassword = this.value;
-        const errorMessage = document.getElementById('new-password-error');
-
-        if (newPassword.length < 8) {
-            errorMessage.textContent = "Mật khẩu mới phải có ít nhất 8 ký tự.";
-        } else {
-            errorMessage.textContent = "";
-        }
-    });
-
-    // Kiểm tra mật khẩu xác nhận
-    document.querySelector('input[name="new_password_confirmation"]').addEventListener('input', function () {
-        const newPassword = document.querySelector('input[name="new_password"]').value;
-        const confirmPassword = this.value;
-        const errorMessage = document.getElementById('confirm-password-error');
-
-        if (confirmPassword !== newPassword) {
-            errorMessage.textContent = "Mật khẩu xác nhận không khớp.";
-        } else {
-            errorMessage.textContent = "";
-        }
-    });
-
-    // Xử lý sự kiện khi nhấn nút xác nhận
-    document.getElementById('submit-button').addEventListener('click', function () {
+// Kiểm tra nếu có lỗi
+@if ($errors->any())
+    @foreach ($errors->all() as $error)
         Swal.fire({
-            title: "Bạn có muốn lưu thay đổi không?",
-            showDenyButton: true,
-            showCancelButton: false,
-            confirmButtonText: "Có",
-            denyButtonText: `Không`
-        }).then((result) => {
-            if (result.isConfirmed) {
-                // Gửi form
-                document.getElementById('change-password-form').submit();
-            } else if (result.isDenied) {
-                Swal.fire("Thay đổi không được lưu", "", "info");
-            }
+            title: "Lỗi!",
+            text: "{{ $error }}",
+            icon: "error"
         });
+    @endforeach
+@endif
+
+// Kiểm tra và ngừng nhập nếu có khoảng trắng trong mật khẩu cũ
+document.querySelector('input[name="current_password"]').addEventListener('input', function () {
+    const newPassword = this.value;
+    const errorMessage = document.getElementById('current_password-error');
+
+    // Kiểm tra nếu có khoảng trắng
+    if (newPassword.includes(" ")) {
+        this.value = newPassword.replace(" ", ""); // Loại bỏ khoảng trắng
+        errorMessage.textContent = "Mật khẩu không được chứa khoảng trắng.";
+    } else {
+        errorMessage.textContent = ""; // Xóa thông báo lỗi nếu không có khoảng trắng
+    }
+});
+// Kiểm tra và ngừng nhập nếu có khoảng trắng trong mật khẩu mới
+document.querySelector('input[name="new_password"]').addEventListener('input', function () {
+    const newPassword = this.value;
+    const errorMessage = document.getElementById('new-password-error');
+
+    // Kiểm tra nếu có khoảng trắng
+    if (newPassword.includes(" ")) {
+        this.value = newPassword.replace(" ", ""); // Loại bỏ khoảng trắng
+        errorMessage.textContent = "Mật khẩu không được chứa khoảng trắng.";
+    } else {
+        errorMessage.textContent = ""; // Xóa thông báo lỗi nếu không có khoảng trắng
+    }
+});
+
+// Kiểm tra và ngừng nhập nếu có khoảng trắng trong mật khẩu xác nhận
+document.querySelector('input[name="new_password_confirmation"]').addEventListener('input', function () {
+    const confirmPassword = this.value;
+    const errorMessage = document.getElementById('confirm-password-error');
+
+    // Kiểm tra nếu có khoảng trắng
+    if (confirmPassword.includes(" ")) {
+        this.value = confirmPassword.replace(" ", ""); // Loại bỏ khoảng trắng
+        errorMessage.textContent = "Mật khẩu xác nhận không được chứa khoảng trắng.";
+    } else {
+        errorMessage.textContent = ""; // Xóa thông báo lỗi nếu không có khoảng trắng
+    }
+});
+
+// Xử lý sự kiện khi nhấn nút xác nhận
+document.getElementById('submit-button').addEventListener('click', function () {
+    const newPassword = document.querySelector('input[name="new_password"]').value;
+    const confirmPassword = document.querySelector('input[name="new_password_confirmation"]').value;
+
+    // Kiểm tra nếu có khoảng trắng
+    if (newPassword.includes(" ") || confirmPassword.includes(" ")) {
+        Swal.fire("Lỗi!", "Mật khẩu không được chứa khoảng trắng.", "error");
+        return;
+    }
+
+    // Kiểm tra nếu mật khẩu mới và xác nhận đúng
+    if (newPassword !== confirmPassword) {
+        Swal.fire("Lỗi!", "Mật khẩu mới và xác nhận không khớp!", "error");
+        return;
+    }
+
+    // Hiển thị thông báo xác nhận
+    Swal.fire({
+        title: "Bạn có muốn lưu thay đổi không?",
+        showDenyButton: true,
+        showCancelButton: false,
+        confirmButtonText: "Có",
+        denyButtonText: "Không"
+    }).then((result) => {
+        if (result.isConfirmed) {
+            // Gửi form nếu tất cả kiểm tra đã đúng
+            document.getElementById('change-password-form').submit();
+        } else if (result.isDenied) {
+            Swal.fire("Thay đổi không được lưu", "", "info");
+        }
     });
+});
 </script>

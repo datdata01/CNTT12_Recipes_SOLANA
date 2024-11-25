@@ -25,12 +25,10 @@ class OrderItem extends Model
     {
         return  $this->belongsTo(Order::class, 'order_id');
     }
-
     public function feedback()
     {
-        return $this->hasOne(Feedback::class);
+        return $this->hasOne(Feedback::class, 'order_item_id');
     }
-
     public function productVariant()
     {
         return $this->belongsTo(ProductVariant::class, 'product_variant_id');

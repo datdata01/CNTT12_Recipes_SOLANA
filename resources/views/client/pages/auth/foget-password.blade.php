@@ -30,7 +30,7 @@
                                 @csrf
                                 <div class="col-12">
                                     <div class="form-floating">
-                                        <input class="form-control" name="email" value="{{ old('email') }}" id="floatingInputValue" type="email" placeholder="Nhập email của bạn">
+                                        <input class="form-control" name="email" value="{{ old('email') }}" id="floatingInputValue" type="text" placeholder="Nhập email của bạn">
                                         <label for="floatingInputValue">Nhập email</label>
                                     </div>
                                     @error('email')
@@ -50,4 +50,19 @@
             </div>
         </div>
     </section>
+    @push('scripts')
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const inputs = document.querySelectorAll('input');
+    inputs.forEach(input => {
+        input.addEventListener('input', function () {
+            if (this.name === 'email') {
+                // Loại bỏ tất cả khoảng trắng vì email không hợp lệ khi có khoảng trắng
+                this.value = this.value.replace(/\s/g, '');
+            }
+        });
+    });
+});
+</script>
+@endpush
 @endsection

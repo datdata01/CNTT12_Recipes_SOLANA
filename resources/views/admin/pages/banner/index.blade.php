@@ -24,12 +24,11 @@ td {
         <table style="table-layout: fixed; width: 100%;" class="table table-bordered">
             <thead>
                 <tr>
-                    <th scope="col" width= "5px">#</th>
-                    <th scope="col" width= "40px">Ảnh Banner</th>
-                    <th scope="col" width= "30px"  style="text-overflow: ellipsis;">Tiêu Đề</th>
-                    <th scope="col" width="120px">Link Dẫn</th>
-                    <th scope="col" width= "40px">Phân Loại Banner</th>
-                    <th scope="col" width= "40px">Hành Động</th>
+                    <th scope="col" width= "1px">STT</th>
+                    <th scope="col" width= "30px">Ảnh Banner</th>
+                    <th scope="col" width= "50px"  style="text-overflow: ellipsis;">Tiêu Đề</th>
+                    <th scope="col" width= "60px">Phân Loại Banner</th>
+                    <th scope="col" width= "30px">Hành Động</th>
                 </tr>
             </thead>
             <tbody>
@@ -40,8 +39,23 @@ td {
                         <img src="{{ asset('storage/' . $banner->image_url) }}" class="img-thumbnail" width="100" height="50" alt="Banner Image">
                     </td>
                     <td>{{ $banner->title }}</td>
-                    <td><a href="{{ $banner->link }}" target="_blank">{{ $banner->link }} </a></td>
-                    <td>{{ ucfirst($banner->image_type) }}</td>
+                    
+                    
+                    <td>
+                        @php
+                            $imageTypes = [
+                                'HEADER' => 'Banner đầu trang',
+                                'CONTENT-LEFT-TOP' => 'Banner sản phẩm mới nhất bên trái phía trên',
+                                'CONTENT-LEFT-BELOW' => 'Banner sản phẩm mới nhất bên trái phía dưới',
+                                'CONTENT-RIGHT' => 'Banner sản phẩm mới nhất bên trái',
+                                'BANNER-RIGHT' => 'Banner sản phẩm yêu thích',
+                                'SUBSCRIBE-NOW-EMAIL' => 'Banner đăng ký',
+                            ];
+                            $imageType = $imageTypes[$banner->image_type] ?? ucfirst($banner->image_type);
+                        @endphp
+                        {{ $imageType }}
+                    </td>
+                    
                     <td>
                         <!-- Info Button to Trigger Modal -->
                         <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#bannerModal{{ $banner->id }}">
@@ -79,12 +93,22 @@ td {
                                     <div class="col-8">
 
                                         <p><strong>Tiêu đề:</strong> {{ $banner->title }}</p>
-                                        <p><strong>Vị trí banner:</strong> {{ ucfirst($banner->image_type) }}</p>
+                                        <p><strong>Vị trí banner:</strong>  @php
+                                            $imageTypes = [
+                                                'HEADER' => 'Banner đầu trang',
+                                                'CONTENT-LEFT-TOP' => 'Banner sản phẩm mới nhất bên trái phía trên',
+                                                'CONTENT-LEFT-BELOW' => 'Banner sản phẩm mới nhất bên trái phía dưới',
+                                                'CONTENT-RIGHT' => 'Banner sản phẩm mới nhất bên trái',
+                                                'BANNER-RIGHT' => 'Banner sản phẩm yêu thích',
+                                                'SUBSCRIBE-NOW-EMAIL' => 'Banner đăng ký',
+                                            ];
+                                            $imageType = $imageTypes[$banner->image_type] ?? ucfirst($banner->image_type);
+                                        @endphp
+                                        {{ $imageType }}</p>
                                         @if ($banner->link)
                                         <p><strong>Đường dẫn đến bài viết/ sản phẩm:</strong> <a href="{{ $banner->link }}" target="_blank">{{ $banner->link }}</a></p>
                                         @endif
-                                        <p><strong>Được tạo:</strong> {{ $banner->created_at->format('d/m/Y') }}</p>
-                                        <p><strong>Cập nhật:</strong> {{ $banner->updated_at->format('d/m/Y') }}</p>
+                                        
                                     </div>
                                 </div>
 

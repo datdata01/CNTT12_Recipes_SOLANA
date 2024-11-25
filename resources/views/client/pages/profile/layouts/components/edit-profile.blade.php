@@ -15,7 +15,7 @@
                                 <label class="form-label">Ảnh đại diện</label>
                                 @if (Auth::user()->image)
                                     <div class="profile-image">
-                                        <img class="img-fluid rounded-circle"
+                                        <img class="img-fluid rounded-circle" style="width: 100px;height: 100px; object-fit: cover;"
                                             src="{{ '/storage/' . Auth::user()->image }}" width="100px">
                                     </div>
                                 @else
@@ -43,7 +43,7 @@
                         <div class="col-12">
                             <div class="form-group">
                                 <label class="form-label">Số điện thoại</label>
-                                <input class="form-control" type="tel" name="phone"
+                                <input class="form-control" type="text" name="phone"
                                     placeholder="Nhập số điện thoại của bạn"
                                     value="{{ old('phone', Auth::user()->phone) }}" />
                                 @error('phone')

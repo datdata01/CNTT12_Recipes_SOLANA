@@ -11,6 +11,7 @@ class Voucher extends Model
     protected $table = 'vouchers';
     protected $fillable = [
         'name',
+        'code',
         'description',
         'limit',
         'discount_type',
@@ -21,6 +22,7 @@ class Voucher extends Model
         'voucher_used',
         'start_date',
         'end_date',
+        'type'
     ];
     public $timestamps = false; 
 

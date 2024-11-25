@@ -31,7 +31,9 @@ class CategoryArticleController extends Controller
         ]);
         return redirect()->route("category-article.index");
     }
-    public function show(string $id) {}
+    public function show(string $id)
+    {
+    }
     public function edit(string $id)
     {
         $cate = CategoryArticle::find($id);
@@ -80,4 +82,5 @@ class CategoryArticleController extends Controller
 
         return redirect()->route("category-article.index");
     }
+
 }

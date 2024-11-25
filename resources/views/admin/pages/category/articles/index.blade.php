@@ -13,7 +13,7 @@
                         class="">
                         @csrf
                         <div class="form-group">
-                            <label for="full_name" class="form-label">Tên danh mục</label>
+                        <label for="full_name" class="form-label">Tên danh mục</label>
                             <div class="input-group">
                                 <input type="text" id="name" name="name" placeholder="Tên danh mục"
                                     class="form-control" value="{{ old('name') }}">
@@ -50,15 +50,14 @@
                                     <th scope="row" class="text-center">{{ $index + 1 }}</th>
                                     <td class="text-center">{{ $list->name }}</td>
                                     <td class="text-center">
-                                        <a href="{{ route('category-article.edit', $list->id) }}"
-                                            class="btn btn-warning">Sửa</a>
+                                        <a href="{{ route('category-article.edit', $list->id) }}" class="btn btn-warning">Sửa</a>
                                         <form action="{{ route('category-article.destroy', $list->id) }}" method="POST"
                                             style="display:inline;" id="delete-form-{{ $list->id }}">
                                             @csrf
                                             @method('DELETE')
                                             <button type="button" class="btn btn-danger"
                                                 onclick="return confirm('Bạn có chắc chắn muốn xóa danh mục này không?') ? document.getElementById('delete-form-{{ $list->id }}').submit() : false;">
-                                                Xóa
+                                               Xóa
                                             </button>
                                         </form>
                                     </td>

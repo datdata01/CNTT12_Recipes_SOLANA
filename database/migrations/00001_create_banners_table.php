@@ -15,7 +15,15 @@ return new class extends Migration
             $table->id();
             $table->string('title');
             $table->string('image_url');
-            $table->enum('image_type',['HEADER','CONTENT']);
+            $table->enum('image_type', [
+                'HEADER',
+                'CONTENT-LEFT-TOP',
+                'CONTENT-LEFT-BELOW',
+                'CONTENT-RIGHT',
+                'SUBSCRIBE-NOW-EMAIL',
+                'BANNER-LEFT',
+                'BANNER-RIGHT'
+            ]);
             $table->text('link');
             $table->timestamps();
         });

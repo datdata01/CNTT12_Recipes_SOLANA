@@ -24,6 +24,7 @@ return new class extends Migration
             $table->integer('voucher_used')->default(0);
             $table->dateTime('start_date'); // start date , end date
             $table->dateTime('end_date'); // start date , end date
+            $table->enum('type', ['OTHER', 'REGISTER', 'SUCCESS'])->default('OTHER');
         });
     }
 

@@ -16,6 +16,8 @@ class Order extends Model
         'user_id',
         'total_amount',
         'status',
+        'cancel_reason',
+        'cancel_reason_other',
         'payment_method',
         'confirm_status',
         'note',

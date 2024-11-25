@@ -22,13 +22,20 @@ class FogetPassRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'email' => 'required',
+            'email' => [
+                'required',
+                'string',
+                'email',
+                'max:255',
+            ],
         ];
     }
     public function messages(): array
     {
         return [
             'email.required' => 'Email là bắt buộc.',
+            'email.email' => 'Email không hợp lệ. Vui lòng nhập đúng định dạng.',
+            'email.max' => 'Email không được dài quá 255 ký tự.',
         ];
     }
 }

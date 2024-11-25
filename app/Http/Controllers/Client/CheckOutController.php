@@ -11,11 +11,16 @@ use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\ProductVariant;
 use App\Models\Province;
+use App\Models\Voucher;
+use App\Models\VoucherUsage;
 use Exception;
 use Flasher\Prime\Notification\NotificationInterface;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+
+use function PHPUnit\Framework\isEmpty;
 
 class CheckOutController extends Controller
 {
@@ -36,10 +41,21 @@ class CheckOutController extends Controller
         // dd($productResponse);
         $userAddress = AddressUser::where('user_id', $userId)->get();
         $provinces = Province::all();
+        $voucher = VoucherUsage::with('voucher')
+            ->where('user_id', Auth::id())
+            ->Where('end_date', '>', Carbon::now())
+            ->Where('status', 'ACTIVE')
+            ->whereHas('voucher', function ($query) {        // Lọc các voucher có limit > 0
+                $query->where('limit', '>', 0);               // Điều kiện limit > 0
+            })
+            ->latest('id')
+            ->get();
+
         return view('client.pages.check-out.index', [
             'productResponse' => $productResponse,
             'userAddress' => $userAddress,
-            'provinces' => $provinces
+            'provinces' => $provinces,
+            'voucher' => $voucher
         ]);
     }
 
@@ -57,20 +73,13 @@ class CheckOutController extends Controller
 
     public function placeOrder(CreatePlaceOrderRequest $request)
     {
-
+        // dd($request->all());
         $userId = Auth::id();
         $productCarts = Cart::with(['productVariant.product', 'productVariant.attributeValues.attribute'])->where('user_id', $userId)->get();
         // dd($productCarts->toArray());
         // dd($request->payment_method);
-
         try {
             DB::beginTransaction();
-            $paymentMethod = null;
-            if ($request->payment_method == 'momo' || $request->payment_method == 'vnpay') {
-                $paymentMethod = "BANK_TRANSFER";
-            } else {
-                $paymentMethod = "CASH";
-            }
 
             foreach ($productCarts as $key => $item) {
                 $quantity = $item->productVariant->quantity - $item->quantity;
@@ -92,6 +101,17 @@ class CheckOutController extends Controller
             $fullAddress = $addressUser['address_detail'] . " - " . $addressUser['ward']['name']
                 . " - " . $addressUser['district']['name'] . " - " . $addressUser['province']['name'];
 
+            $paymentMethod = null;
+            $statusOrder = '';
+            if ($request->payment_method == 'momo' || $request->payment_method == 'vnpay') {
+                $paymentMethod = "BANK_TRANSFER";
+                $statusOrder = "PROCESSING";
+            } else {
+                $paymentMethod = "CASH";
+                $statusOrder = "PENDING";
+            }
+
+
             // ma don hang
             $code = $this->codeOrder();
             // dd($fullAddress);
@@ -101,11 +121,12 @@ class CheckOutController extends Controller
                 "payment_method" => $paymentMethod,
                 "note" => $request->note,
                 "confirm_status" => "IN_ACTIVE",
-                "status" => "PENDING",
+                "status" => $statusOrder,
                 "phone" => $addressUser['phone'],
                 "customer_name" => $addressUser['name'],
                 "full_address" => $fullAddress,
-                "code" => $code
+                "code" => $code,
+                "discount_amount" => $request->discount_amount,
             ];
             $order = Order::create($dataOrder);
 
@@ -131,13 +152,27 @@ class CheckOutController extends Controller
                 $orderId = $order->id;
                 $urlRedirect = route('order-success', $orderId);
 
-                $url = $this->payMomo($request, $urlRedirect);
+                $url = $this->payMomo($dataOrder, $urlRedirect);
                 // dd($url);
                 if ($url) {
                     DB::commit();
                     return redirect()->to($url);
                 } else {
                     throw new Exception("Error Payment", 1);
+                }
+            }
+
+            if ($request->voucher_id && $request->id_voucherUsage) {
+                $voucher = Voucher::find($request->voucher_id);
+                $voucherUsage = VoucherUsage::find($request->id_voucherUsage);
+                if ($voucher && $voucherUsage) {
+                    // Giảm số lượng limit và tăng số lượng voucher_used
+                    $voucher->update([
+                        'limit' => $voucher->limit - 1,       // Giảm số lần có thể sử dụng
+                        'voucher_used' => $voucher->voucher_used + 1, // Tăng số lần đã sử dụng
+                    ]);
+
+                    $voucherUsage->delete();
                 }
             }
 
@@ -171,19 +206,12 @@ class CheckOutController extends Controller
 
     public function placeOrderBuyNow(CreateOrderBuyNow $request)
     {
-
+        // dd($request->all());
         $userId = Auth::id();
         $variantId = $request->variant;
         $productVariant = ProductVariant::with('product')->where('id', $variantId)->first();
         try {
             DB::beginTransaction();
-            $paymentMethod = null;
-            if ($request->payment_method == 'momo' || $request->payment_method == 'vnpay') {
-                $paymentMethod = "BANK_TRANSFER";
-            } else {
-                $paymentMethod = "CASH";
-            }
-
 
             $quantity = $productVariant->quantity - $request->quantity;
             $sold = $productVariant->sold + $request->quantity;
@@ -201,6 +229,16 @@ class CheckOutController extends Controller
             $fullAddress = $addressUser['address_detail'] . " - " . $addressUser['ward']['name']
                 . " - " . $addressUser['district']['name'] . " - " . $addressUser['province']['name'];
 
+            $paymentMethod = null;
+            $statusOrder = '';
+            if ($request->payment_method == 'momo' || $request->payment_method == 'vnpay') {
+                $paymentMethod = "BANK_TRANSFER";
+                $statusOrder = "PROCESSING";
+            } else {
+                $paymentMethod = "CASH";
+                $statusOrder = "PENDING";
+            }
+
             // ma don hang
             $code = $this->codeOrder();
             // dd($fullAddress);
@@ -210,13 +248,15 @@ class CheckOutController extends Controller
                 "payment_method" => $paymentMethod,
                 "note" => $request->note,
                 "confirm_status" => "IN_ACTIVE",
-                "status" => "PENDING",
+                "status" => $statusOrder,
                 "phone" => $addressUser['phone'],
                 "customer_name" => $addressUser['name'],
                 "full_address" => $fullAddress,
-                "code" => $code
+                "code" => $code,
+                "discount_amount" => $request->discount_amount,
             ];
             $order = Order::create($dataOrder);
+
 
 
             $data[] = [
@@ -231,6 +271,19 @@ class CheckOutController extends Controller
             OrderItem::insert($data);
 
 
+            if ($request->voucher_id && $request->id_voucherUsage) {
+                $voucher = Voucher::find($request->voucher_id);
+                $voucherUsage = VoucherUsage::find($request->id_voucherUsage);
+                if ($voucher && $voucherUsage) {
+                    // Giảm số lượng limit và tăng số lượng voucher_used
+                    $voucher->update([
+                        'limit' => $voucher->limit - 1,       // Giảm số lần có thể sử dụng
+                        'voucher_used' => $voucher->voucher_used + 1, // Tăng số lần đã sử dụng
+                    ]);
+
+                    $voucherUsage->delete();
+                }
+            }
 
             //  giao dịch thành công
             DB::commit();
@@ -238,7 +291,7 @@ class CheckOutController extends Controller
                 $orderId = $order->id;
                 $urlRedirect = route('order-success', $orderId);
 
-                $url = $this->payMomo($request, $urlRedirect);
+                $url = $this->payMomo($dataOrder, $urlRedirect);
                 // dd($url);
                 if ($url) {
                     DB::commit();
@@ -275,41 +328,41 @@ class CheckOutController extends Controller
 
     private function codeOrder()
     {
-        // Tạo một chuỗi ngẫu nhiên gồm các chữ cái viết hoa và số với độ dài 8 ký tự
-        $code = Str::upper(Str::random(8));
+        // Tạo một chuỗi ngẫu nhiên gồm các chữ cái viết hoa và số với độ dài 14 ký tự
+        // $code = Str::upper(Str::random(14));
+        $time = now()->format('YmdHis');
+        //        dd($time);
 
         // Đảm bảo chuỗi có cả số và chữ cái bằng cách trộn ký tự từ hai tập hợp riêng biệt
-        $letters = Str::random(4); // Lấy 4 chữ cái ngẫu nhiên
-        $numbers = substr(str_shuffle("0123456789"), 0, 4); // Lấy 4 số ngẫu nhiên
+        $letters = Str::random(7); // Lấy 7 chữ cái ngẫu nhiên
+        $numbers = substr(str_shuffle($time), 0, 7); // Lấy 4 số ngẫu nhiên
 
         // Gộp và xáo trộn chữ cái và số để đảm bảo vị trí ngẫu nhiên
         $mixedCode = str_shuffle($letters . $numbers);
         return strtoupper($mixedCode);
     }
 
-    private function payMomo($request, $urlRedirect)
+    private function payMomo($dataOrder, $urlRedirect)
     {
         $endpoint = "https://test-payment.momo.vn/v2/gateway/api/create";
 
-
-        $partnerCode = 'MOMOBKUN20180529';
-        $accessKey = 'klm05TvNBzhg7h7j';
-        $secretKey = 'at67qH6mk8w5Y1nAyMoYKMWACiEi2bsa';
-        $orderInfo = "Thanh toán qua MoMo";
-        $amount = $request->total_amount;
-        $orderId = time() . "";
+        $partnerCode = env("MOMO_PARTNER_CODE");
+        $accessKey = env("MOMO_ACCESS_KEY");
+        $secretKey = env("MOMO_SECRET_KEY");
+        $orderInfo = "Thanh toán MOMO"; // cai nay yeu cau khong duoc de trong
+        $amount = $dataOrder['total_amount'];
+        $orderId = $dataOrder['code'];
         $redirectUrl = $urlRedirect;
-        $ipnUrl = $urlRedirect;
+        $ipnUrl = $urlRedirect; // chuyen huong khi thanh cong
         $extraData = "";
-
-        $requestId = time() . "";
+        $requestId = $dataOrder['code'];
         $requestType = "payWithATM";
-        // $extraData = ($_POST["extraData"] ? $_POST["extraData"] : "");
+
         //before sign HMAC SHA256 signature
         $rawHash = "accessKey=" . $accessKey . "&amount=" . $amount . "&extraData=" . $extraData . "&ipnUrl=" . $ipnUrl . "&orderId=" . $orderId . "&orderInfo=" . $orderInfo . "&partnerCode=" . $partnerCode . "&redirectUrl=" . $redirectUrl . "&requestId=" . $requestId . "&requestType=" . $requestType;
+
         $signature = hash_hmac("sha256", $rawHash, $secretKey);
-        // dd($signature);
-        // die;
+
         $data = array(
             'partnerCode' => $partnerCode,
             'partnerName' => "Test",
@@ -325,11 +378,15 @@ class CheckOutController extends Controller
             'requestType' => $requestType,
             'signature' => $signature
         );
+
         $result = $this->execPostRequest($endpoint, json_encode($data));
+
         if (!$result) {
             // Nếu không có kết quả, API có thể đã gặp lỗi kết nối
             dd("Error: No response from MoMo API.");
         }
+
+
         $jsonResult = json_decode($result, true);
         if (isset($jsonResult['errorCode']) && $jsonResult['errorCode'] != 0) {
             // Nếu có lỗi, hiển thị mã lỗi

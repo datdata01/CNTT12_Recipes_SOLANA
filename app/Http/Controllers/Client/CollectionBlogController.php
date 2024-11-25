@@ -9,15 +9,20 @@ use Illuminate\Http\Request;
 
 class CollectionBlogController extends Controller
 {
-    public function index(Request $request)
+    public function index(Request $request, $id = null)
     {
         $searchQuery = $request->input('query'); // Lấy từ khóa tìm kiếm từ yêu cầu
+        // dd($id);
 
         // Tìm kiếm bài viết nếu có từ khóa, nếu không thì lấy tất cả bài viết
         $articles = Article::when($searchQuery, function ($query) use ($searchQuery) {
             $query->where('title', 'LIKE', "%{$searchQuery}%")
                 ->orWhere('content', 'LIKE', "%{$searchQuery}%");
-        })->orderBy('id', 'desc')->paginate(3);
+        })->when($id, function ($query) use ($id) {
+            $query->whereHas('categoryArticle', function ($categoryQuery) use ($id) {
+                $categoryQuery->where('id', $id); // Giả sử bạn có trường 'code' trong bảng categories
+            });
+        })->orderBy('id', 'desc')->paginate(10);
         $latestPosts = Article::orderBy('id', 'desc')->take(4)->get();
         $categories = CategoryArticle::withCount('articles')->get();
         return view('client.pages.collection-blog.index', compact('articles', 'latestPosts', 'categories', 'searchQuery'));

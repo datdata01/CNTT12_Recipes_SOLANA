@@ -30,13 +30,12 @@
                         <div class="col-md-12">
                             <label for="image_type" class="form-label">Chọn vị trí hình ảnh:</label>
                             <select id="image_type" name="image_type" class="form-control">
-                                <option value="HEADER" {{ $banners->image_type == 'HEADER' ? 'selected' : '' }}>Banner Header</option>
-                                <option value="CONTENT-LEFT-TOP" {{ $banners->image_type == 'CONTENT-LEFT-TOP' ? 'selected' : '' }}>Banner Content-left-top</option>
-                                <option value="CONTENT-LEFT-BELOW" {{ $banners->image_type == 'CONTENT-LEFT-BELOW' ? 'selected' : '' }}>Banner Content-left-right</option>
-                                <option value="CONTENT-RIGHT" {{ $banners->image_type == 'CONTENT-RIGHT' ? 'selected' : '' }}>Banner Content-right</option>
-                                <option value="SUBSCRIBE-NOW-EMAIL" {{ $banners->image_type == 'SUBSCRIBE-NOW-EMAIL' ? 'selected' : '' }}>Banner subscribe-now-email</option>
-                                <option value="BANNER-LEFT" {{ $banners->image_type == 'BANNER-LEFT' ? 'selected' : '' }}>Banner-left</option>
-                                <option value="BANNER-RIGHT" {{ $banners->image_type == 'BANNER-RIGHT' ? 'selected' : '' }}>Banner-right</option>
+                                <option value="HEADER" {{ $banners->image_type == 'HEADER' ? 'selected' : '' }}>Banner đầu trang</option>
+                                <option value="CONTENT-LEFT-TOP" {{ $banners->image_type == 'CONTENT-LEFT-TOP' ? 'selected' : '' }}>Banner sản phẩm mới nhất bên trái phía trên</option>
+                                <option value="CONTENT-LEFT-BELOW" {{ $banners->image_type == 'CONTENT-LEFT-BELOW' ? 'selected' : '' }}>Banner sản phẩm mới nhất bên trái phía dưới</option>
+                                <option value="CONTENT-RIGHT" {{ $banners->image_type == 'CONTENT-RIGHT' ? 'selected' : '' }}>Banner sản phẩm mới nhất bên trái</option>
+                                <option value="BANNER-RIGHT" {{ $banners->image_type == 'BANNER-RIGHT' ? 'selected' : '' }}>Banner sản phẩm yêu thích</option>
+                                <option value="SUBSCRIBE-NOW-EMAIL" {{ $banners->image_type == 'SUBSCRIBE-NOW-EMAIL' ? 'selected' : '' }}>Banner đăng ký</option>
                                 </select>
                             @error('image_type')
                             <span class="text-danger">{{ $message }}</span>
@@ -71,14 +70,13 @@
                 </div>
                 <div class="col-md-6">
                     <h4>Ghi chú:</h4> <br>
-                    <p>HEADER yêu cầu kích thước tối đa 1600x650</p>
-                    <p>CONTENT-LEFT-TOP yêu cầu 650x300</p>
-                    <p>CONTENT-LEFT-BELOW yêu cầu 650x300</p>
-                    <p>CONTENT-RIGHT yêu cầu 500x550</p>
-                    <p>SUBSCRIBE-NOW-EMAIL yêu cầu 1100x700</p>
-                    <p>BANNER-LEFT yêu cầu 700x700</p>
-                    <p>BANNER-RIGHT yêu cầu 700x500</p>
-
+                    <p>Banner đầu trang yêu cầu kích thước tối đa 1600x650</p>
+                    <p>Banner Sản phẩm mới nhất bên trái phía trên yêu cầu kích thước tối đa 650x300</p>
+                    <p>Banner Sản phẩm mới nhất bên trái phía dưới yêu cầu kích thước tối đa 650x300</p>
+                    <p>Banner Sản phẩm mới nhất bên phải yêu cầu kích thước tối đa 500x550</p>
+                    <p>Banner đăng ký để nhận ngay! yêu cầu kích thước tối đa 1100x700</p>
+                    <p>Banner sản phẩm yêu thích trái yêu cầu kích thước tối đa 700x700</p>
+                    <p>Banner sản phẩm yêu thích phải yêu cầu kích thước tối đa 750x500</p>
                 </div>
             </div>
            

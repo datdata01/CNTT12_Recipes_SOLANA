@@ -1,6 +1,6 @@
 @extends('client.layouts.master')
 @section('title')
-Chi tiết sản phẩm
+    Chi tiết sản phẩm
 @endsection
 @push('css')
     <style>
@@ -62,191 +62,195 @@ Chi tiết sản phẩm
     </style>
 @endpush
 @section('content')
-@include('client.pages.components.breadcrumb', [
-    'pageHeader' => 'Sản phẩm : ' . $product->name,
-    'parent' => [
-        'route' => route("home"),
-        'name' => 'Trang chủ',
-    ],
-])
-<section class="section-b-space product-thumbnail-page pt-0">
-    <div class="custom-container container">
-        <div class="row gy-4">
-            <div class="col-lg-6">
-                <div class="row sticky">
-                    <div class="col-sm-2 col-3">
-                        <div class="swiper product-slider product-slider-img">
-                            <div class="swiper-wrapper">
-                                @foreach ($product->productImages as $productImage)
-                                    <div class="swiper-slide">
-                                        <img src="{{ '/storage/' . $productImage->image_url }}" alt="">
-                                    </div>
-                                @endforeach
+    @include('client.pages.components.breadcrumb', [
+        'pageHeader' => 'Sản phẩm : ' . $product->name,
+        'parent' => [
+            'route' => route('home'),
+            'name' => 'Trang chủ',
+        ],
+    ])
+    <section class="section-b-space product-thumbnail-page pt-0">
+        <div class="custom-container container">
+            <div class="row gy-4">
+                <div class="col-lg-6">
+                    <div class="row sticky">
+                        <div class="col-sm-2 col-3">
+                            <div class="swiper product-slider product-slider-img">
+                                <div class="swiper-wrapper">
+                                    @foreach ($product->productImages as $productImage)
+                                        <div class="swiper-slide">
+                                            <img src="{{ '/storage/' . $productImage->image_url }}" alt="">
+                                        </div>
+                                    @endforeach
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="col-sm-10 col-9">
-                        <div class="swiper product-slider-thumb product-slider-img-1">
-                            <div class="swiper-wrapper ratio_square-2">
-                                @foreach ($product->productImages as $productImage)
-                                    <div class="swiper-slide">
-                                        <img class="bg-img" src="{{ '/storage/' . $productImage->image_url }}" alt="">
-                                    </div>
-                                @endforeach
+                        <div class="col-sm-10 col-9">
+                            <div class="swiper product-slider-thumb product-slider-img-1">
+                                <div class="swiper-wrapper ratio_square-2">
+                                    @foreach ($product->productImages as $productImage)
+                                        <div class="swiper-slide">
+                                            <img class="bg-img" src="{{ '/storage/' . $productImage->image_url }}"
+                                                alt="">
+                                        </div>
+                                    @endforeach
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
-            <div class="col-lg-6">
-                <div class="product-detail-box">
-                    <div class="product-option">
-                        <div class="move-fast-box d-flex align-items-center gap-1"><img
-                                src="/template/client/assets/images/gif/fire.gif" alt="">
-                            <p>Move fast!</p>
-                        </div>
-                        <h3>{{ $product->name }}</h3>
-                        <p id="variant-price">
-                            @if ($product->productVariants->count() === 1)
-                                {{ number_format($product->productVariants->first()->price, 0, ',', '.') }}₫
-                            @else
-                                {{ number_format($product->productVariants->min('price'), 0, ',', '.') }}₫
-                                -
-                                {{ number_format($product->productVariants->max('price'), 0, ',', '.') }}₫
-                            @endif
-                            {{-- <span class="offer-btn">25% off</span> --}}
-                        </p>
-                        <div class="rating">
-                            <ul>
-                                @php
-                                    $rating = $averageRating ? $averageRating : 0; // Lấy rating từ feedback
-                                @endphp
-                                @for ($i = 1; $i <= 5; $i++)
-                                    <li>
-                                        <i class="fa-solid fa-star"
-                                            style="color: {{ $i <= $rating ? '#f39c12' : '#000' }};"></i>
-                                    </li>
-                                @endfor
-                                <li><span>({{ $feedbackCount }}) đánh giá</span></li>
-                            </ul>
-                        </div>
-                        <div class="buy-box border-buttom">
-                            <ul>
-                                <li> <span data-bs-toggle="modal" data-bs-target="#size-chart" title="Quick View"
-                                        tabindex="0"><i class="iconsax me-2" data-icon="ruler"></i>Bảng kích
-                                        thước</span>
-                                </li>
-                                <li>
-                                    <span data-bs-toggle="modal" data-bs-target="#terms-conditions-modal"
-                                        title="Quick View" tabindex="0"><i class="iconsax me-2"
-                                            data-icon="truck"></i>Giao hàng và trả lại</span>
-                                </li>
-                                <li>
-                                    <span data-bs-toggle="modal" data-bs-target="#question-box" title="Quick View"
-                                        tabindex="0"><i class="iconsax me-2" data-icon="question-message"></i>Đặt câu
-                                        hỏi
-                                    </span>
-                                </li>
-                            </ul>
-                        </div>
-                        <div class="d-flex flex-column">
-                            <div class="product-variants">
-                                {{-- hien thi bien the san pham --}}
-                                @foreach ($productAttribute as $index => $variant)
-                                    <div class="d-flex flex-row">
-                                        <h5 class=""> {{ $variant['name'] }} </h5>
-                                        <div class="box">
-                                            <ul class="variant" id="variant-options">
-                                                @foreach ($variant['value'] as $key => $item)
-                                                    {{-- @dd($item) --}}
-                                                    <button class="variant-option" data-variant="{{ $variant['name'] }}"
-                                                        data-value="{{ $item['id'] }}" data-quantity="">
-                                                        {{ $item['name'] }}
-                                                    </button>
-                                                @endforeach
-                                            </ul>
-                                        </div>
-                                    </div>
-                                @endforeach
-                                <div>
-                                    <h5 class="fw-bold">Số lượng :
-                                        <span class="fw-bold fs-6" id="variant-quantity"></span>
-                                    </h5>
-                                </div>
+                <div class="col-lg-6">
+                    <div class="product-detail-box">
+                        <div class="product-option">
+                            <div class="move-fast-box d-flex align-items-center gap-1"><img
+                                    src="/template/client/assets/images/gif/fire.gif" alt="">
+                                <p>Move fast!</p>
                             </div>
-                        </div>
-                        <div class="quantity-box d-flex align-items-center gap-3">
-                            <div class="quantity">
-                                <button class="minus" type="button">
-                                    <i class="fa-solid fa-minus"></i>
-                                </button>
-                                <input type="number" value="1" min="1" max="" id="quantity_variant">
-                                <button class="plus" type="button">
-                                    <i class="fa-solid fa-plus"></i>
-                                </button>
+                            <h3>{{ $product->name }}</h3>
+                            <p id="variant-price">
+                                @if ($product->productVariants->count() === 1)
+                                    {{ number_format($product->productVariants->first()->price, 0, ',', '.') }} VND
+                                @else
+                                    {{ number_format($product->productVariants->min('price'), 0, ',', '.') }} -
+                                    {{ number_format($product->productVariants->max('price'), 0, ',', '.') }} VND
+                                @endif
+                                {{-- <span class="offer-btn">25% off</span> --}}
+                            </p>
+                            <div class="rating">
+                                <ul>
+                                    @php
+                                        $rating = $averageRating ? $averageRating : 0; // Lấy rating từ feedback
+                                    @endphp
+                                    @for ($i = 1; $i <= 5; $i++)
+                                        <li>
+                                            <i class="fa-solid fa-star"
+                                                style="color: {{ $i <= $rating ? '#f39c12' : '#000' }};"></i>
+                                        </li>
+                                    @endfor
+                                    <li><span>({{ $feedbackCount }}) đánh giá</span></li>
+                                </ul>
                             </div>
-                            <div class="d-flex align-items-center w-100 gap-3">
-                                <button type="button" id="btn_add_to_cart" class="btn btn_black sm"
-                                    data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight"
-                                    aria-controls="offcanvasRight">
-                                    Thêm Vào Giỏ Hàng
-                                </button>
-                                <button type="button" id="btn_buy_now" class="btn btn_black sm"
-                                    data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight"
-                                    aria-controls="offcanvasRight">
-                                    Mua ngay
-                                </button>
-                            </div>
-                        </div>
-                        <div class="buy-box">
-                            <ul>
-                            <li>
-    <a class="label-2 wishlist-icon" data-id="{{ $product->id }}"  tabindex="0" >
-        <i class="fa-regular fa-heart" style="{{ $product->favorites->isNotEmpty() ? 'display: none;' : '' }};padding: 0 20px;font-size: 1.2em;  "></i>
-        <i class="fa-solid fa-heart" style="color: red; {{ $product->favorites->isNotEmpty() ? '' : 'display: none;' }};padding: 0 20px;font-size: 1.2em; "></i>
-    </a>
-    <span style="font-size: 1.2em;" class="wishlist-text">{{ $product->favorites->isNotEmpty() ? 'Bỏ yêu thích' : 'Yêu thích sản phẩm' }}</span>
-</li>
-                                {{-- <li> <a href="compare.html"> <i class="fa-solid fa-arrows-rotate me-2"></i>Add To
-                                        Compare</a></li>
-                                <li> <a href="#" data-bs-toggle="modal" data-bs-target="#social-box" title="Quick View"
-                                        tabindex="0"><i class="fa-solid fa-share-nodes me-2"></i>Share</a></li> --}}
-                            </ul>
-                        </div>
-                        <div class="sale-box">
-                            <div class="d-flex align-items-center gap-2"><img
-                                    src="/template/client/assets/images/gif/timer.gif" alt="">
-                                <p>Thời gian có hạn! Nhanh lên, chương trình khuyến mại sắp kết thúc!</p>
-                            </div>
-                            <div class="countdown">
-                                <ul class="clockdiv1">
-                                    <li>
-                                        <div class="timer">
-                                            <div class="days"></div>
-                                        </div><span class="title">Ngày</span>
+                            <div class="buy-box border-buttom">
+                                <ul>
+                                    <li> <span data-bs-toggle="modal" data-bs-target="#size-chart" title="Quick View"
+                                            tabindex="0"><i class="iconsax me-2" data-icon="ruler"></i>Bảng kích
+                                            thước</span>
                                     </li>
-                                    <li>:</li>
                                     <li>
-                                        <div class="timer">
-                                            <div class="hours"></div>
-                                        </div><span class="title">Giờ</span>
+                                        <span data-bs-toggle="modal" data-bs-target="#terms-conditions-modal"
+                                            title="Quick View" tabindex="0"><i class="iconsax me-2"
+                                                data-icon="truck"></i>Giao hàng và trả lại</span>
                                     </li>
-                                    <li>:</li>
                                     <li>
-                                        <div class="timer">
-                                            <div class="minutes"></div>
-                                        </div><span class="title">Phút</span>
-                                    </li>
-                                    <li>:</li>
-                                    <li>
-                                        <div class="timer">
-                                            <div class="seconds"></div>
-                                        </div><span class="title">Giây</span>
+                                        <span data-bs-toggle="modal" data-bs-target="#question-box" title="Quick View"
+                                            tabindex="0"><i class="iconsax me-2" data-icon="question-message"></i>Đặt câu
+                                            hỏi
+                                        </span>
                                     </li>
                                 </ul>
                             </div>
-                        </div>
-                        {{-- <div class="dz-info">
+                            <div class="d-flex flex-column">
+                                <div class="product-variants">
+                                    {{-- hien thi bien the san pham --}}
+                                    @foreach ($productAttribute as $index => $variant)
+                                        <div class="d-flex flex-row">
+                                            <h5 class=""> {{ $variant['name'] }} </h5>
+                                            <div class="box">
+                                                <ul class="variant" id="variant-options">
+                                                    @foreach ($variant['value'] as $key => $item)
+                                                        {{-- @dd($item) --}}
+                                                        <button class="variant-option" data-variant="{{ $variant['name'] }}"
+                                                            data-value="{{ $item['id'] }}" data-quantity="">
+                                                            {{ $item['name'] }}
+                                                        </button>
+                                                    @endforeach
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                    <div>
+                                        <h5 class="fw-bold">Số lượng :
+                                            <span class="fw-bold fs-6" id="variant-quantity"></span>
+                                        </h5>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="quantity-box d-flex align-items-center gap-3">
+                                <div class="quantity">
+                                    <button class="minus" type="button">
+                                        <i class="fa-solid fa-minus"></i>
+                                    </button>
+                                    <input type="number" value="1" min="1" max=""
+                                        id="quantity_variant">
+                                    <button class="plus" type="button">
+                                        <i class="fa-solid fa-plus"></i>
+                                    </button>
+                                </div>
+                                <div class="d-flex align-items-center w-100 gap-3">
+                                    <button type="button" id="btn_add_to_cart" class="btn btn_black sm"
+                                        data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight"
+                                        aria-controls="offcanvasRight">
+                                        Thêm Vào Giỏ Hàng
+                                    </button>
+                                    <button type="button" id="btn_buy_now" class="btn btn_black sm"
+                                        data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight"
+                                        aria-controls="offcanvasRight">
+                                        Mua ngay
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="buy-box">
+                                <ul>
+                                    <li>
+                                        <a class="label-2 wishlist-icon" data-id="{{ $product->id }}" tabindex="0">
+                                            <i class="fa-regular fa-heart"
+                                                style="{{ $product->favorites->isNotEmpty() ? 'display: none;' : '' }};padding: 0 20px;font-size: 1.2em;  "></i>
+                                            <i class="fa-solid fa-heart"
+                                                style="color: red; {{ $product->favorites->isNotEmpty() ? '' : 'display: none;' }};padding: 0 20px;font-size: 1.2em; "></i>
+                                        </a>
+                                        <span style="font-size: 1.2em;"
+                                            class="wishlist-text">{{ $product->favorites->isNotEmpty() ? 'Bỏ yêu thích' : 'Yêu thích sản phẩm' }}</span>
+                                    </li>
+                                    {{-- <li> <a href="compare.html"> <i class="fa-solid fa-arrows-rotate me-2"></i>Add To
+                                        Compare</a></li>
+                                <li> <a href="#" data-bs-toggle="modal" data-bs-target="#social-box" title="Quick View"
+                                        tabindex="0"><i class="fa-solid fa-share-nodes me-2"></i>Share</a></li> --}}
+                                </ul>
+                            </div>
+                            <div class="sale-box">
+                                <div class="d-flex align-items-center gap-2"><img
+                                        src="/template/client/assets/images/gif/timer.gif" alt="">
+                                    <p>Thời gian có hạn! Nhanh lên, chương trình khuyến mại sắp kết thúc!</p>
+                                </div>
+                                <div class="countdown">
+                                    <ul class="clockdiv1">
+                                        <li>
+                                            <div class="timer">
+                                                <div class="days"></div>
+                                            </div><span class="title">Ngày</span>
+                                        </li>
+                                        <li>:</li>
+                                        <li>
+                                            <div class="timer">
+                                                <div class="hours"></div>
+                                            </div><span class="title">Giờ</span>
+                                        </li>
+                                        <li>:</li>
+                                        <li>
+                                            <div class="timer">
+                                                <div class="minutes"></div>
+                                            </div><span class="title">Phút</span>
+                                        </li>
+                                        <li>:</li>
+                                        <li>
+                                            <div class="timer">
+                                                <div class="seconds"></div>
+                                            </div><span class="title">Giây</span>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                            {{-- <div class="dz-info">
                             <ul>
                                 <li>
                                     <div class="d-flex align-items-center gap-2">
@@ -278,43 +282,43 @@ Chi tiết sản phẩm
                             <h5>Secure Checkout </h5><img class="img-fluid"
                                 src="/template/client/assets/images/other-img/secure_payments.png" alt="">
                         </div> --}}
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
-    <div class="product-section-box x-small-section pt-0">
-        <div class="custom-container container">
-            <div class="row">
-                <div class="col-12">
-                    <ul class="product-tab theme-scrollbar nav nav-tabs nav-underline" id="Product" role="tablist">
-                        <li class="nav-item" role="presentation">
-                            <button class="nav-link active" id="Description-tab" data-bs-toggle="tab"
-                                data-bs-target="#Description-tab-pane" role="tab" aria-controls="Description-tab-pane"
-                                aria-selected="true">Chi tiết sản
-                                phẩm</button>
-                        </li>
-                        {{-- <li class="nav-item" role="presentation"><button class="nav-link" id="specification-tab"
+        <div class="product-section-box x-small-section pt-0">
+            <div class="custom-container container">
+                <div class="row">
+                    <div class="col-12">
+                        <ul class="product-tab theme-scrollbar nav nav-tabs nav-underline" id="Product" role="tablist">
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link active" id="Description-tab" data-bs-toggle="tab"
+                                    data-bs-target="#Description-tab-pane" role="tab"
+                                    aria-controls="Description-tab-pane" aria-selected="true">Chi tiết sản
+                                    phẩm</button>
+                            </li>
+                            {{-- <li class="nav-item" role="presentation"><button class="nav-link" id="specification-tab"
                                 data-bs-toggle="tab" data-bs-target="#specification-tab-pane" role="tab"
                                 aria-controls="specification-tab-pane" aria-selected="false">Thông số kỹ thuật</button>
                         </li>
                         <li class="nav-item" role="presentation"><button class="nav-link" id="question-tab"
                                 data-bs-toggle="tab" data-bs-target="#question-tab-pane" role="tab"
                                 aria-controls="question-tab-pane" aria-selected="false">Q & A</button></li> --}}
-                        <li class="nav-item" role="presentation"><button class="nav-link" id="Reviews-tab"
-                                data-bs-toggle="tab" data-bs-target="#Reviews-tab-pane" role="tab"
-                                aria-controls="Reviews-tab-pane" aria-selected="false">Đánh giá sản phẩm</button></li>
-                    </ul>
-                    <div class="tab-content product-content" id="ProductContent">
-                        <div class="tab-pane fade show active" id="Description-tab-pane" role="tabpanel"
-                            aria-labelledby="Description-tab" tabindex="0">
-                            <div class="row gy-4">
-                                <div class="col-12">
-                                    {!! $product->description !!}
+                            <li class="nav-item" role="presentation"><button class="nav-link" id="Reviews-tab"
+                                    data-bs-toggle="tab" data-bs-target="#Reviews-tab-pane" role="tab"
+                                    aria-controls="Reviews-tab-pane" aria-selected="false">Đánh giá sản phẩm</button></li>
+                        </ul>
+                        <div class="tab-content product-content" id="ProductContent">
+                            <div class="tab-pane fade show active" id="Description-tab-pane" role="tabpanel"
+                                aria-labelledby="Description-tab" tabindex="0">
+                                <div class="row gy-4">
+                                    <div class="col-12">
+                                        {!! $product->description !!}
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                        {{-- <div class="tab-pane fade" id="specification-tab-pane" role="tabpanel"
+                            {{-- <div class="tab-pane fade" id="specification-tab-pane" role="tabpanel"
                             aria-labelledby="specification-tab" tabindex="0">
                             <p>I like to be real. I don't like things to be staged or fussy. Grunge is a hippied
                                 romantic version of punk. I have my favourite fashion decade, yes, yes, yes: '60s.
@@ -469,65 +473,66 @@ Chi tiết sản phẩm
                                 </ul>
                             </div>
                         </div> --}}
-                        <div class="tab-pane fade" id="Reviews-tab-pane" role="tabpanel" aria-labelledby="Reviews-tab"
-                            tabindex="0">
-                            <div class="row gy-4">
-                                <div class="col-lg-4">
-                                    <div class="review-right">
-                                        <div class="customer-rating">
-                                            <div class="global-rating">
-                                                <div>
-                                                    <h5>{{ $averageRating }}</h5>
+                            <div class="tab-pane fade" id="Reviews-tab-pane" role="tabpanel"
+                                aria-labelledby="Reviews-tab" tabindex="0">
+                                <div class="row gy-4">
+                                    <div class="col-lg-4">
+                                        <div class="review-right">
+                                            <div class="customer-rating">
+                                                <div class="global-rating">
+                                                    <div>
+                                                        <h5>{{ $averageRating }}</h5>
+                                                    </div>
+                                                    <div>
+                                                        <h6>Đánh giá trung bình</h6>
+                                                        <ul class="rating mb p-0">
+                                                            @php
+                                                                $rating = $averageRating ? $averageRating : 0; // Lấy rating từ feedback
+                                                            @endphp
+                                                            @for ($i = 1; $i <= 5; $i++)
+                                                                <li>
+                                                                    <i class="fa-solid fa-star"
+                                                                        style="color: {{ $i <= $rating ? '#f39c12' : '#000' }};"></i>
+                                                                </li>
+                                                            @endfor
+                                                            @php
+                                                                $feedbackCount = $feedbacks->count();
+                                                            @endphp
+                                                            <li><span>({{ $feedbackCount }})</span></li>
+                                                        </ul>
+                                                    </div>
                                                 </div>
-                                                <div>
-                                                    <h6>Đánh giá trung bình</h6>
-                                                    <ul class="rating mb p-0">
-                                                        @php
-                                                            $rating = $averageRating ? $averageRating : 0; // Lấy rating từ feedback
-                                                        @endphp
-                                                        @for ($i = 1; $i <= 5; $i++)
-                                                            <li>
-                                                                <i class="fa-solid fa-star"
-                                                                    style="color: {{ $i <= $rating ? '#f39c12' : '#000' }};"></i>
-                                                            </li>
-                                                        @endfor
-                                                        @php
-                                                            $feedbackCount = $feedbacks->count();
-                                                        @endphp
-                                                        <li><span>({{ $feedbackCount }})</span></li>
-                                                    </ul>
-                                                </div>
-                                            </div>
-                                            <ul class="rating-progess">
-                                                @foreach ($ratingProgress as $stars => $percentage)
-                                                    <li>
-                                                        <p>{{ $stars }} Sao</p>
-                                                        <div class="progress" role="progressbar"
-                                                            aria-label="Progress for {{ $stars }} stars"
-                                                            aria-valuenow="{{ $percentage }}" aria-valuemin="0"
-                                                            aria-valuemax="100">
-                                                            <div class="progress-bar progress-bar-striped progress-bar-animated"
-                                                                style="width: {{ $percentage }}%;"></div>
-                                                        </div>
-                                                        <p>{{ $percentage }}%</p>
-                                                    </li>
-                                                @endforeach
-                                            </ul>
-                                            {{-- <button class="btn reviews-modal" data-bs-toggle="modal"
+                                                <ul class="rating-progess">
+                                                    @foreach ($ratingProgress as $stars => $percentage)
+                                                        <li>
+                                                            <p>{{ $stars }} Sao</p>
+                                                            <div class="progress" role="progressbar"
+                                                                aria-label="Progress for {{ $stars }} stars"
+                                                                aria-valuenow="{{ $percentage }}" aria-valuemin="0"
+                                                                aria-valuemax="100">
+                                                                <div class="progress-bar progress-bar-striped progress-bar-animated"
+                                                                    style="width: {{ $percentage }}%;"></div>
+                                                            </div>
+                                                            <p>{{ $percentage }}%</p>
+                                                        </li>
+                                                    @endforeach
+                                                </ul>
+                                                {{-- <button class="btn reviews-modal" data-bs-toggle="modal"
                                                 data-bs-target="#Reviews-modal" title="Quick View" tabindex="0">Viết Bài
                                                 Đánh Giá
                                             </button> --}}
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
-                                <div class="col-lg-8">
-                                    <div class="comments-box">
-                                        <h5>Bình Luận </h5>
-                                        <ul class="theme-scrollbar">
-                                            @foreach ($feedbacks as $feedback)
-                                                @include('client.pages.product.feedback_product_render')
-                                            @endforeach
-                                        </ul>
+                                    <div class="col-lg-8">
+                                        <div class="comments-box">
+                                            <h5>Bình Luận </h5>
+                                            <ul class="theme-scrollbar">
+                                                @foreach ($feedbacks as $feedback)
+                                                    @include('client.pages.product.feedback_product_render')
+                                                @endforeach
+                                            </ul>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -536,69 +541,76 @@ Chi tiết sản phẩm
                 </div>
             </div>
         </div>
-    </div>
-</section>
-<section class="section-b-space pt-0">
-    <div class="custom-container product-contain container">
-        <div class="title text-start">
-            <h3>Sản phẩm liên quan</h3><svg>
-                <use href="/template/client/assets/svg/icon-sprite.svg#main-line"></use>
-            </svg>
-        </div>
-        <div class="swiper special-offer-slide-2">
-            <div class="swiper-wrapper ratio1_3">
-                @foreach ($relatedProducts as $product)
-                                <div class="swiper-slide">
-                                    <div class="product-box-3">
-                                        <div class="img-wrapper">
-                                            <div class="label-block">
-                                                <span class="lable-1">NEW</span>
-                                                <a class="label-2 wishlist-icon" data-id="{{ $product->id }}" tabindex="0">
-                                <i class="fa-regular fa-heart"
-                                    style="{{ $product->favorites->isNotEmpty() ? 'display: none;' : '' }}"></i>
-                                <i class="fa-solid fa-heart"
-                                    style="color: red; {{ $product->favorites->isNotEmpty() ? '' : 'display: none;' }}"></i>
-                            </a>
-                                            </div>
-                                            <div class="product-image">
-                                                <a class="pro-first" href="{{ route('product', $product->id) }}">
-                                                    <img class="bg-img" src="{{ '/storage/' . $product->image }}" alt="product">
-                                                </a>
-                                                @php
-                                                    $firstImage = $product->productImages->first();
-                                                @endphp
-                                                <a class="pro-sec" href="{{ route('product', $product->id) }}">
-                                                    <img class="bg-img" src="{{ '/storage/' . $firstImage->image_url }}" alt="product">
-                                                </a>
-                                            </div>
-                                            <div class="cart-info-icon">
-                                            </div>
-                                        </div>
-                                        <div class="product-detail">
-                                            <ul class="rating">
-                                                <li><i class="fa-solid fa-star"></i></li>
-                                                <li><i class="fa-solid fa-star"></i></li>
-                                                <li><i class="fa-solid fa-star"></i></li>
-                                                <li><i class="fa-solid fa-star-half-stroke"></i></li>
-                                                <li><i class="fa-regular fa-star"></i></li>
-                                                <li>4.3</li>
-                                            </ul><a href="{{ route('product', $product->id) }}">
-                                                <h6>{{ $product->name }}</h6>
-                                            </a>
-                                            <p>
-                                                @if ($product->productVariants->count() === 1)
-                                                    {{ number_format($product->productVariants->first()->price, 0, ',', '.') }}₫
-                                                @else
-                                                    {{ number_format($product->productVariants->min('price'), 0, ',', '.') }}₫
-                                                    -
-                                                    {{ number_format($product->productVariants->max('price'), 0, ',', '.') }}₫
-                                                @endif
-                                            </p>
-                                        </div>
+    </section>
+    <section class="section-b-space pt-0">
+        <div class="custom-container product-contain container">
+            <div class="title text-start">
+                <h3>Sản phẩm liên quan</h3><svg>
+                    <use href="/template/client/assets/svg/icon-sprite.svg#main-line"></use>
+                </svg>
+            </div>
+            <div class="swiper special-offer-slide-2">
+                <div class="swiper-wrapper ratio1_3">
+                    @foreach ($relatedProducts as $product)
+                        <div class="swiper-slide">
+                            <div class="product-box-3">
+                                <div class="img-wrapper">
+                                    <div class="label-block">
+                                        <span class="lable-1">liên quan</span>
+                                        <a class="label-2 wishlist-icon" data-id="{{ $product->id }}" tabindex="0">
+                                            <i class="fa-regular fa-heart"
+                                                style="{{ $product->favorites->isNotEmpty() ? 'display: none;' : '' }}"></i>
+                                            <i class="fa-solid fa-heart"
+                                                style="color: red; {{ $product->favorites->isNotEmpty() ? '' : 'display: none;' }}"></i>
+                                        </a>
+                                    </div>
+                                    <div class="product-image">
+                                        <a class="pro-first" href="{{ route('product', $product->id) }}">
+                                            <img class="bg-img" src="{{ '/storage/' . $product->image }}"
+                                                alt="product">
+                                        </a>
+                                        @php
+                                            $firstImage = $product->productImages->first();
+                                        @endphp
+                                        <a class="pro-sec" href="{{ route('product', $product->id) }}">
+                                            <img class="bg-img" src="{{ '/storage/' . $firstImage->image_url }}"
+                                                alt="product">
+                                        </a>
+                                    </div>
+                                    <div class="cart-info-icon">
                                     </div>
                                 </div>
-                @endforeach
-                {{-- <div class="swiper-slide">
+                                <div class="product-detail">
+                                    <ul class="rating">
+                                        @php
+                                            $rating = $product->average_rating ? $product->average_rating : 0; // Lấy rating từ feedback
+                                        @endphp
+                                        @for ($i = 1; $i <= 5; $i++)
+                                            <li>
+                                                <i class="fa-solid fa-star"
+                                                    style="color: {{ $i <= $rating ? '#f39c12' : '#000' }};"></i>
+                                            </li>
+                                        @endfor
+                                    </ul>
+                                    <a href="{{ route('product', $product->id) }}">
+                                        <h6>{{ $product->name }}</h6>
+                                    </a>
+                                    <p>
+                                        @if ($product->productVariants->count() === 1)
+                                            {{ number_format($product->productVariants->first()->price, 0, ',', '.') }}
+                                            VND
+                                        @else
+                                            {{ number_format($product->productVariants->min('price'), 0, ',', '.') }}
+                                            -
+                                            {{ number_format($product->productVariants->max('price'), 0, ',', '.') }}
+                                            VND
+                                        @endif
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    @endforeach
+                    {{-- <div class="swiper-slide">
                     <div class="product-box-3">
                         <div class="img-wrapper">
                             <div class="label-block"><span class="lable-1">NEW</span><a class="label-2 wishlist-icon"
@@ -800,10 +812,10 @@ Chi tiết sản phẩm
                         </div>
                     </div>
                 </div> --}}
+                </div>
             </div>
         </div>
-    </div>
-</section>
+    </section>
 @endsection
 @push('scripts')
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
@@ -817,7 +829,7 @@ Chi tiết sản phẩm
         console.log(dataProductVariant);
 
 
-        document.addEventListener('DOMContentLoaded', function () {
+        document.addEventListener('DOMContentLoaded', function() {
             defaultPrice = document.getElementById('variant-price').textContent;
             quantityInput = document.getElementById("quantity_variant");
             const defaultQuantity = 0;
@@ -826,8 +838,8 @@ Chi tiết sản phẩm
             let arrVariant = [];
 
             // Lắng nghe sự kiện click trên từng nút variant-option
-            document.querySelectorAll('.variant-option').forEach(function (button) {
-                button.addEventListener('click', function () {
+            document.querySelectorAll('.variant-option').forEach(function(button) {
+                button.addEventListener('click', function() {
                     // kiem tra ton tai roi thi bỏ đi
 
                     if (this.classList.contains('selected')) {
@@ -850,7 +862,7 @@ Chi tiết sản phẩm
 
                     } else { // con chua bam trc đấy
                         this.closest('.variant').querySelectorAll('.variant-option').forEach(
-                            function (btn) {
+                            function(btn) {
                                 btn.classList.remove('selected');
                             });
 
@@ -910,7 +922,8 @@ Chi tiết sản phẩm
                     quantityInput.value = 1;
                     document.getElementById('variant-price').textContent = new Intl.NumberFormat('vi-VN', {
                         style: 'currency',
-                        currency: 'VND'
+                        currency: 'VND',
+                        currencyDisplay: 'code'
                     }).format(priceValue);
                 } else {
                     console.log("nho hon 0");
@@ -941,73 +954,73 @@ Chi tiết sản phẩm
             }
 
             // Sự kiện khi click nút "Thêm vào giỏ hàng"
-            document.querySelector('#btn_add_to_cart').addEventListener("click", function () {
+            document.querySelector('#btn_add_to_cart').addEventListener("click", function() {
                 checklogin('Vui lòng chọn biến thể trước khi thêm giỏ hàng', 'add_to_cart');
             });
 
             // Sự kiện khi click nút "Mua ngay"
-            document.querySelector('#btn_buy_now').addEventListener("click", function () {
+            document.querySelector('#btn_buy_now').addEventListener("click", function() {
                 checklogin('Vui lòng chọn biến thể trước khi mua', 'buy_now');
             });
         });
 
         function checklogin(message, action) {
             @auth
-                let selectedVariant = document.querySelector('.variant-option.selected');
-                if (!selectedVariant || resultProduct.length == 0) {
-                    Swal.fire(message, "", "warning");
-                    return;
-                }
+            let selectedVariant = document.querySelector('.variant-option.selected');
+            if (!selectedVariant || resultProduct.length == 0) {
+                Swal.fire(message, "", "warning");
+                return;
+            }
 
-                const maxQuantity = parseInt(document.getElementById('variant-quantity').textContent);
-                const quantityValue = parseInt(quantityInput.value);
+            const maxQuantity = parseInt(document.getElementById('variant-quantity').textContent);
+            const quantityValue = parseInt(quantityInput.value);
 
-                // console.log(quantityValue);
-                // console.log(maxQuantity);
+            // console.log(quantityValue);
+            // console.log(maxQuantity);
 
-                if (quantityValue > maxQuantity) {
-                    Swal.fire(`Số lượng không được vượt quá ${maxQuantity}`, "", "warning");
-                    quantityInput.value = maxQuantity;
-                    return;
-                }
-                if (quantityValue < 1) {
-                    Swal.fire(`Số lượng không được nhỏ hơn 1`, "", "warning");
-                    quantityInput.value = 1;
-                    return;
-                }
-                if (isNaN(maxQuantity)) {
-                    Swal.fire("Sản phẩm không còn hàng !", "", "warning");
-                    quantityInput.value = '';
-                    return;
-                }
+            if (quantityValue > maxQuantity) {
+                Swal.fire(`Số lượng không được vượt quá ${maxQuantity}`, "", "warning");
+                quantityInput.value = maxQuantity;
+                return;
+            }
+            if (quantityValue < 1) {
+                Swal.fire(`Số lượng không được nhỏ hơn 1`, "", "warning");
+                quantityInput.value = 1;
+                return;
+            }
+            if (isNaN(maxQuantity)) {
+                Swal.fire("Sản phẩm không còn hàng !", "", "warning");
+                quantityInput.value = '';
+                return;
+            }
 
-                const data = {
-                    userId: {{ Auth::id() }},
-                    variantId: resultProduct[0].id,
-                    quantity: quantityValue,
-                };
+            const data = {
+                userId: {{ Auth::id() }},
+                variantId: resultProduct[0].id,
+                quantity: quantityValue,
+            };
 
-                if (action === 'add_to_cart') {
-                    sendToCart(data);
-                } else if (action === 'buy_now') {
-                    // alert("kjsakjd")
-                    buyNow(data);
-                }
-            @endauth
+            if (action === 'add_to_cart') {
+                sendToCart(data);
+            } else if (action === 'buy_now') {
+                // alert("kjsakjd")
+                buyNow(data);
+            }
+        @endauth
 
-            @guest
-                Swal.fire({
-                    title: "Bạn cần đăng nhập để thực hiện thao tác này!",
-                    icon: "warning",
-                    confirmButtonText: "Đăng nhập",
-                    showCancelButton: true,
-                    cancelButtonText: "Hủy"
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        window.location.href = "{{ route('auth.login-view') }}";
-                    }
-                });
-            @endguest
+        @guest
+        Swal.fire({
+            title: "Bạn cần đăng nhập để thực hiện thao tác này!",
+            icon: "warning",
+            confirmButtonText: "Đăng nhập",
+            showCancelButton: true,
+            cancelButtonText: "Hủy"
+        }).then((result) => {
+            if (result.isConfirmed) {
+                window.location.href = "{{ route('auth.login-view') }}";
+            }
+        });
+        @endguest
         }
 
         function buyNow(data) {
@@ -1015,14 +1028,14 @@ Chi tiết sản phẩm
                 type: "POST",
                 url: '{{ route('api.buy-now') }}',
                 data: data,
-                success: function (response) {
+                success: function(response) {
                     console.log(response);
                     const productJson = JSON.stringify(data);
                     localStorage.setItem('productBuyNow', productJson)
                     window.location.href = response.url
 
                 },
-                error: function (error) {
+                error: function(error) {
                     Swal.fire("Có lỗi xảy ra, vui lòng thử lại sau!", "", "error");
                     console.error(error);
                 }
@@ -1036,68 +1049,67 @@ Chi tiết sản phẩm
                 type: "POST",
                 url: '{{ route('api.add-cart') }}',
                 data: data,
-                success: function (response) {
+                success: function(response) {
                     let numberCart = response.message.numberCart;
                     document.querySelector("#numberCart").innerText = numberCart;
                     Swal.fire("Thêm vào giỏ hàng thành công!", "", "success");
                 },
-                error: function (error) {
+                error: function(error) {
                     Swal.fire(error.responseJSON.message, "", "error");
                     console.error(error.responseJSON.message);
                 }
             });
         }
-        $(document).ready(function () {
-            $(document).on('click', '.wishlist-icon', function (e) {
+        $(document).ready(function() {
+        $(document).on('click', '.wishlist-icon', function(e) {
                 e.preventDefault();
                 var productId = $(this).data('id');
                 var icon = $(this).find('i');
                 var textElement = $(this).siblings('.wishlist-text');
 
                 @auth
-                    $.ajax({
-                        url: '{{ route("toggle.favorite") }}',
-                        method: 'POST',
-                        data: {
-                            userId: {{ Auth::id() }},
-                            product_id: productId
-                        },
-                        success: function (response) {
-                            console.log("Love status:", response);
-                            $('#love').text(response.love);
+                $.ajax({
+                    url: '{{ route('toggle.favorite') }}',
+                    method: 'POST',
+                    data: {
+                        userId: {{ Auth::id() }},
+                        product_id: productId
+                    },
+                    success: function(response) {
+                        console.log("Love status:", response);
+                        $('#love').text(response.love);
 
-                            // Cập nhật trạng thái hiển thị icon và văn bản
-                            if (response.status === 'added') {
-                                icon.eq(0).hide();  // Ẩn trái tim chưa yêu thích
-                                icon.eq(1).show();  // Hiển thị trái tim đã yêu thích
-                                textElement.text('Bỏ yêu thích');
-                            } else {
-                                icon.eq(1).hide();  // Ẩn trái tim đã yêu thích
-                                icon.eq(0).show();  // Hiển thị trái tim chưa yêu thích
-                                textElement.text('Yêu thích sản phẩm');
-                            }
-                        },
-                        error: function (xhr, status, error) {
-                            Swal.fire("Có lỗi xảy ra!", "", "error");
-                            console.error(error);
+                        // Cập nhật trạng thái hiển thị icon và văn bản
+                        if (response.status === 'added') {
+                            icon.eq(0).hide(); // Ẩn trái tim chưa yêu thích
+                            icon.eq(1).show(); // Hiển thị trái tim đã yêu thích
+                            textElement.text('Bỏ yêu thích');
+                        } else {
+                            icon.eq(1).hide(); // Ẩn trái tim đã yêu thích
+                            icon.eq(0).show(); // Hiển thị trái tim chưa yêu thích
+                            textElement.text('Yêu thích sản phẩm');
                         }
-                    });
-                @endauth
+                    },
+                    error: function(xhr, status, error) {
+                        Swal.fire("Có lỗi xảy ra!", "", "error");
+                        console.error(error);
+                    }
+                });
+            @endauth
 
-                @guest
-                    Swal.fire({
-                        title: "Bạn cần đăng nhập để thực hiện thao tác này!",
-                        icon: "warning",
-                        confirmButtonText: "Đăng nhập",
-                        showCancelButton: true,
-                        cancelButtonText: "Hủy"
-                    }).then((result) => {
-                        if (result.isConfirmed) {
-                            window.location.href = "{{ route('auth.login-view') }}";
-                        }
-                    });
-                @endguest
+            @guest Swal.fire({
+                title: "Bạn cần đăng nhập để thực hiện thao tác này!",
+                icon: "warning",
+                confirmButtonText: "Đăng nhập",
+                showCancelButton: true,
+                cancelButtonText: "Hủy"
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = "{{ route('auth.login-view') }}";
+                }
             });
+        @endguest
+        });
         });
     </script>
 @endpush

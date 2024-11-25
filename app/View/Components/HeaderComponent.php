@@ -30,7 +30,7 @@ class HeaderComponent extends Component
     public function render(): View|Closure|string
     {
         $cartResponse = 0;
-        $love=0;
+        $love = 0;
         if (Auth::check()) {
             $userId = Auth::id();
             $cartResponse = Cart::where('user_id', $userId)->count('*');

@@ -41,7 +41,7 @@
                                         <span class="address">
                                             <span class="address-home">
                                                 <span class="address-tag">Trạng thái:</span>
-                                                @if ($item->status == 'ACTIVE' && $item->end_date > \Carbon\Carbon::now())
+                                                @if ($item->status == 'ACTIVE' && $item->end_date > \Carbon\Carbon::now() && $item->voucher->limit > 0)
                                                     Còn hiệu lực
                                                 @else
                                                     Hết hiệu lực
@@ -106,7 +106,7 @@
                                     <strong>Áp dụng cho đơn:</strong>
                                     {{ $item->voucher->min_order_value . ' - ' . $item->voucher->max_order_value . ' VND' }}<br>
                                     <strong>Trạng thái:</strong>
-                                    @if ($item->status == 'ACTIVE' && $item->end_date > \Carbon\Carbon::now())
+                                    @if ($item->status == 'ACTIVE' && $item->end_date > \Carbon\Carbon::now() && $item->voucher->limit > 0)
                                         Còn hiệu lực
                                     @else
                                         Hết hiệu lực

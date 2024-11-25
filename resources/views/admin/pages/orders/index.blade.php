@@ -13,8 +13,7 @@
         <div class="card-body">
             <div class="row mb-3">
                 <div class="col-md-9">
-                    <input type="text" id="order-search" class="form-control col-6"
-                        placeholder="Tìm kiếm mã đơn hàng hoặc tên người dùng">
+                    <input type="text" id="order-search" class="form-control col-6" placeholder="Tìm kiếm mã đơn hàng hoặc tên người dùng">
                 </div>
                 <div class="col-md-3">
                     <select class="form-select" id="order-status-filter">
@@ -97,15 +96,11 @@
                             <div class="page-item ${page === 1 ? 'disabled' : ''}">
                                 <span class="page-link" onclick="fetchOrders(${page - 1})">&lt;</span>
                             </div>
-                            ${Array.from({ length: response.orders.last_page }, (_, i) => ` <
-                        div class = "page-item ${page === i + 1 ? 'active' : ''}" >
-                        <
-                        span class = "page-link"
-                        onclick = "fetchOrders(${i + 1})" > $ {
-                            i + 1
-                        } < /span> <
-                        /div>
-                        `).join('')}
+                            ${Array.from({ length: response.orders.last_page }, (_, i) => `
+                                <div class="page-item ${page === i + 1 ? 'active' : ''}">
+                                    <span class="page-link" onclick="fetchOrders(${i + 1})">${i + 1}</span>
+                                </div>
+                            `).join('')}
                             <div class="page-item ${page === response.orders.last_page ? 'disabled' : ''}">
                                 <span class="page-link" onclick="fetchOrders(${page + 1})">&gt;</span>
                             </div>

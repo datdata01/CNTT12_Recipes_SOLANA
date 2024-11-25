@@ -27,7 +27,9 @@ class CreateOrderBuyNow extends FormRequest
             "payment_method" => "required",
             "note" => "nullable",
             "quantity" => 'required',
-            "variant" => 'required'
+            "variant" => 'required',
+            "voucher_id"      => "nullable",
+            'id_voucherUsage' => "nullable"
         ];
     }
 
@@ -35,7 +37,7 @@ class CreateOrderBuyNow extends FormRequest
     {
         return [
             "address_user_id.required" => "Không được để trống địa chỉ",
-            "totalAmount.required" => "Không được để trống tổng số tiền",
+            "total_amount.required" => "Không được để trống tổng số tiền",
             "payment_method.required" => "Không được để trống phương thức thanh toán",
             "note.required" => "Không được để trống ghi chú",
             "quantity.required" => "Không được để trống số lượng",

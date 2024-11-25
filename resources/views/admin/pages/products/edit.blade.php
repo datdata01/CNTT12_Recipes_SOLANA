@@ -105,7 +105,7 @@
                             <div class="form-check mx-2">
                                 <input type="checkbox" class="form-check-input attribute-checkbox"
                                     data-id="{{ $item->id }}"
-                                    {{ in_array($item->id, $product->productVariants->pluck('attributeValues.*.id')->flatten()->unique()->toArray()) ? 'checked' : '' }}>
+                                    {{ $product->productVariants->pluck('attributeValues.*.attribute_id')->flatten()->unique()->contains($item->id)? 'checked': '' }}>
                                 <label class="form-check-label">{{ $item->name }}</label>
                             </div>
                         @endforeach

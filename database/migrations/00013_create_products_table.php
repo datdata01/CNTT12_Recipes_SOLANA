@@ -17,10 +17,11 @@ return new class extends Migration
             $table->foreignIdFor(CategoryProduct::class)->constrained();
             $table->string('name');
             $table->string('code', 50)->unique();
-            $table->text('description')->nullable();
+            $table->longText('description')->nullable();
             $table->string('image');
-            $table->enum('status',['ACTIVE','IN_ACTIVE']);
-            $table->integer('love');
+            $table->enum('status', ['ACTIVE', 'IN_ACTIVE']);
+            $table->integer('love')->default(0);
+            $table->integer('view')->default(0); // Đặt giá trị mặc định là 0
             $table->timestamps();
         });
     }

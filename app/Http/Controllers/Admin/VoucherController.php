@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Voucher;
 use App\Http\Requests\Admin\voucher\CreateVoucherRequest;
 use App\Http\Requests\Admin\voucher\UpdateVoucherRequest;
+use App\Models\VoucherUsage;
 use Flasher\Prime\Notification\NotificationInterface;
 use Carbon\Carbon;
 
@@ -27,6 +28,7 @@ class VoucherController extends Controller
         // check trùng voucher (1 voucher k thể xuất hiện 2 lần)
         $existingVoucher = Voucher::where([
             ['name', $request->name],
+            ['code', $request->code],
             ['description', $request->description],
             ['limit', $request->limit],
             ['start_date', $request->start_date],
@@ -52,6 +54,7 @@ class VoucherController extends Controller
 
         Voucher::create([
             'name' => $request->name,
+            'code' => $request->code,
             'description' => $request->description,
             'limit' => $request->limit,
             'start_date' => $request->start_date,
@@ -61,6 +64,7 @@ class VoucherController extends Controller
             'min_order_value' => $request->min_order_value,
             'max_order_value' => $request->max_order_value,
             'status' => $request->status,
+            'type' => $request->type,
         ]);
 
         toastr("Thêm thành công dữ liệu voucher", NotificationInterface::SUCCESS, "Thành công !", [
@@ -89,6 +93,7 @@ class VoucherController extends Controller
 
         $dataUpdate = [
             'name' => $request->name,
+            'code' => $request->code,
             'description' => $request->description,
             'limit' => $request->limit,
             'start_date' => $request->start_date,
@@ -98,6 +103,7 @@ class VoucherController extends Controller
             'min_order_value' => $request->min_order_value,
             'max_order_value' => $request->max_order_value,
             'status' => $request->status,
+            'type' => $request->type,
         ];
 
         $updateSuccess = $voucher->update($dataUpdate);
@@ -118,22 +124,44 @@ class VoucherController extends Controller
         return redirect()->back();
     }
 
-    public function destroy(string $id)
+    public function destroy($id)
     {
-        $voucherDestroy = Voucher::destroy($id);
-        if ($voucherDestroy) {
-            toastr("Xóa voucher thành công !", NotificationInterface::SUCCESS, "Thành công !", [
+        // Tìm voucher
+        $voucher = Voucher::find($id);
+
+        if (!$voucher) {
+            toastr("Voucher không tồn tại!", NotificationInterface::ERROR, "Thất bại!", [
                 "closeButton" => true,
                 "progressBar" => true,
                 "timeOut" => "3000",
             ]);
             return redirect()->route('voucher.index');
         }
-        toastr("Xóa voucher không thành công !", NotificationInterface::ERROR, "Thất bại !", [
-            "closeButton" => true,
-            "progressBar" => true,
-            "timeOut" => "3000",
-        ]);
+
+        // Kiểm tra xem voucher có bản ghi liên quan trong voucher_usages không
+        $hasUsages = VoucherUsage::where('voucher_id', $id)->exists();
+
+        if ($hasUsages) {
+            // Nếu có liên quan, đổi trạng thái về IN_ACTIVE
+            $voucher->status = 'IN_ACTIVE';
+            $voucher->save();
+
+            toastr("Vô hiệu hóa Voucher thành công!", NotificationInterface::SUCCESS, "Thành công!", [
+                "closeButton" => true,
+                "progressBar" => true,
+                "timeOut" => "3000",
+            ]);
+        } else {
+            // Nếu không liên quan, cho phép xóa
+            $voucher->delete();
+
+            toastr("Xóa voucher thành công!", NotificationInterface::SUCCESS, "Thành công!", [
+                "closeButton" => true,
+                "progressBar" => true,
+                "timeOut" => "3000",
+            ]);
+        }
+
         return redirect()->route('voucher.index');
     }
 }

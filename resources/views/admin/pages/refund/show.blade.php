@@ -1,4 +1,3 @@
-<!-- resources/views/admin/pages/refund/refund_detail_modal.blade.php -->
 <div class="modal fade" id="refundDetailModal-{{ $list->id }}" tabindex="-1" role="dialog"
     aria-labelledby="refundDetailModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg" role="document">
@@ -17,12 +16,48 @@
                     </div>
                     <div class="col-sm-7">
                         <div>
-                            <strong>Order ID: </strong>
-                            <label>{{ $list->order->id ?? 'Không có mã order_id' }}</label>
+                            <strong>Mã đơn hàng: </strong>
+                            <label>{{ $list->order->code ?? 'Không có mã order_id' }}</label>
+                        </div>
+                        <div>
+                            <strong>Địa chỉ: </strong>
+                            <label>{{ $list->order->full_address ?? 'Không có địa chỉ' }}</label>
                         </div>
                         <div>
                             <strong>Lý do: </strong>
-                            <label>{{ $list->reason }}</label>
+                            <label>
+                                @php
+                                    // Xác định lý do hoàn hàng và chuyển đổi thành tiếng Việt
+                                    $reasonText = '';
+                                    switch ($list->reason) {
+                                        case 'NOT_RECEIVED':
+                                            $reasonText = 'Chưa nhận được hàng';
+                                            break;
+                                        case 'MISSING_ITEMS':
+                                            $reasonText = 'Thiếu món hàng';
+                                            break;
+                                        case 'DAMAGED_ITEMS':
+                                            $reasonText = 'Hàng hóa bị hư hỏng';
+                                            break;
+                                        case 'INCORRECT_ITEMS':
+                                            $reasonText = 'Món hàng không đúng';
+                                            break;
+                                        case 'FAULTY_ITEMS':
+                                            $reasonText = 'Hàng hóa bị lỗi';
+                                            break;
+                                        case 'DIFFERENT_FROM_THE_DESCRIPTION':
+                                            $reasonText = 'Khác với mô tả';
+                                            break;
+                                        case 'USED_ITEMS':
+                                            $reasonText = 'Hàng hóa đã qua sử dụng';
+                                            break;
+                                        default:
+                                            $reasonText = 'Không xác định';
+                                            break;
+                                    }
+                                @endphp
+                                {{ $reasonText }}
+                            </label>
                         </div>
                         <div>
                             <strong>Mô tả: </strong>
@@ -31,12 +66,18 @@
                         <div>
                             <strong>Trạng thái: </strong>
                             <label>
-                                @if ($list->status == 'PENDING')
-                                    <span class="badge bg-warning">Đang chờ</span>
-                                @elseif ($list->status == 'COMPLETED')
-                                    <span class="badge bg-success">Hoàn thành</span>
+                                @if ($list->status == 'ORDER_CREATED')
+                                    <span class="badge bg-warning">Tạo đơn thành công</span>
+                                @elseif ($list->status == 'CANCEL_REFUND_ORDER')
+                                    <span class="badge bg-danger">Hủy đơn hoàn</span>
+                                @elseif ($list->status == 'HANDOVER_TO_SHIPPING')
+                                    <span class="badge bg-info">Giao cho đơn vị vận chuyển</span>
+                                @elseif ($list->status == 'REFUND_COMPLETED')
+                                    <span class="badge bg-success">Đã hoàn hàng thành công</span>
+                                @elseif ($list->status == 'DELIVERY_FAILED')
+                                    <span class="badge bg-secondary">Giao hàng thất bại</span>
                                 @else
-                                    <span class="badge bg-danger">Không thành công</span>
+                                    <span class="badge bg-danger">Không xác định</span>
                                 @endif
                             </label>
                         </div>

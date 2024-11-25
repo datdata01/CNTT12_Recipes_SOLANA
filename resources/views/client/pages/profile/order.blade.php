@@ -18,11 +18,13 @@ Lịch sử mua hàng
                         <ul class="product-tab theme-scrollbar nav nav-tabs nav-underline" id="Product" role="tablist">
                             @php
                                 $tabs = [
+                                    'PROCESSING'=>'Chờ thanh toán',
                                     'PENDING' => 'Đang chờ xử lý',
                                     'DELIVERING' => 'Đang giao hàng',
                                     'SHIPPED' => 'Đã giao hàng',
                                     'COMPLETED' => 'Thành công',
-                                    'CANCELED' => 'Hủy đơn hàng'
+                                    'CANCELED' => 'Hủy đơn hàng',
+                                    'REFUND'   =>'Hoàn hàng'
                                 ];
                             @endphp
                             @foreach ($tabs as $status => $tabName)

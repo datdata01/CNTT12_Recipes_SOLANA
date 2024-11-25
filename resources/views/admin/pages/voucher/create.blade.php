@@ -12,6 +12,14 @@
                 @csrf
                 <div class="row">
                     <div class="col-6">
+                        <div class="form-group">
+                            <label for="" class="form-control-label">Loại voucher</label>
+                            <select name="type" class="form-control">
+                                <option value="OTHER">Khác</option>
+                                <option value="REGISTER">Áp dụng cho khách hàng mới</option>
+                                <option value="SUCCESS">Áp dụng khi mua hàng thành công</option>
+                            </select>
+                        </div>
                         <div class="form-group mb-3">
                             <label for="" class="form-control-label">Tên loại voucher</label>
                             <input type="text" name="name" placeholder="Tên loại voucher.." class="form-control"
@@ -23,12 +31,12 @@
                             @endif
                         </div>
                         <div class="form-group">
-                            <label for="" class="form-control-label">Mô tả về voucher</label>
-                            <input type="text" name="description" placeholder="Mô tả về voucher.." class="form-control"
-                                value="{{ old('description') }}">
-                            @if ($errors->has('description'))
+                            <label for="" class="form-control-label">Mã voucher</label>
+                            <input type="text" name="code" placeholder="Mã voucher.." class="form-control"
+                                value="{{ old('code') }}">
+                            @if ($errors->has('code'))
                                 <div class="form-text badge text-danger">
-                                    {{ $errors->first('description') }}
+                                    {{ $errors->first('code') }}
                                 </div>
                             @endif
                         </div>
@@ -61,6 +69,7 @@
                                 </div>
                             @endif
                         </div>
+
                     </div>
                     <div class="col-6">
                         <div class="form-group">
@@ -117,10 +126,20 @@
                                 </div>
                             @endif
                         </div>
+                        <div class="form-group">
+                            <label for="" class="form-control-label">Mô tả thêm về voucher</label>
+                            <input type="text" name="description" placeholder="Mô tả về voucher.."
+                                class="form-control" value="{{ old('description') }}">
+                            @if ($errors->has('description'))
+                                <div class="form-text badge text-danger">
+                                    {{ $errors->first('description') }}
+                                </div>
+                            @endif
+                        </div>
                     </div>
                 </div>
                 <div>
-                    <a class="btn btn-warning" href="{{ route('voucher.index') }}">Quay lại</a>
+                    <a class="btn btn-primary" href="{{ route('voucher.index') }}">Quay lại</a>
                     <button type="submit" class="btn btn-success px-5">Thêm</button>
                 </div>
             </form>

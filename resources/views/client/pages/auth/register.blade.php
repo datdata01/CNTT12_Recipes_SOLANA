@@ -38,7 +38,7 @@
                             </div>
                             <div class="col-12">
                                 <div class="form-floating">
-                                    <input class="form-control" name="email" id="floatingInputValue1" type="email" placeholder="name@example.com" value="{{ old('email') }}">
+                                    <input class="form-control" name="email" id="floatingInputValue1" type="text" placeholder="name@example.com" value="{{ old('email') }}">
                                     <label for="floatingInputValue1">Nhập địa chỉ email của bạn</label>
                                 </div>
                                 @error('email')
@@ -47,7 +47,7 @@
                             </div>
                             <div class="col-12">
                                 <div class="form-floating">
-                                    <input class="form-control" name="phone" id="floatingInputValue1" type="tel" placeholder="Nhập số điện thoại của bạn" value="{{ old('phone') }}">
+                                    <input class="form-control" name="phone" id="floatingInputValue1" type="text" placeholder="Nhập số điện thoại của bạn" value="{{ old('phone') }}">
                                     <label for="floatingInputValue1">Nhập số điện thoại</label>
                                 </div>
                                 @error('phone')
@@ -97,4 +97,25 @@
         </div>
     </div>
 </section>
+@push('scripts')
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const inputs = document.querySelectorAll('input');
+    inputs.forEach(input => {
+        input.addEventListener('input', function () {
+            if (this.name === 'email') {
+                // Loại bỏ tất cả khoảng trắng vì email không hợp lệ khi có khoảng trắng
+                this.value = this.value.replace(/\s/g, '');
+            } else if (this.name === 'phone') {
+                // Chỉ cho phép ký tự số
+                this.value = this.value.replace(/[^0-9]/g, '');
+            } else if (this.name === 'password' || this.name === 'password_confirmation') {
+                // Loại bỏ khoảng trắng đầu và cuối, giữ nguyên nội dung khác
+                this.value = this.value.trim();
+            }
+        });
+    });
+});
+</script>
+@endpush
 @endsection

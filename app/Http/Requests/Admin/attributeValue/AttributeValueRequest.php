@@ -31,7 +31,7 @@ class AttributeValueRequest extends FormRequest
     public function messages()
     {
         return[
-            'attribute_id' => 'Trường thuộc tính không được để',
+            'attribute_id' => 'Trường thuộc tính không được để trống',      
             'name.required' => 'Trường tên là bắt buộc.',
             'name.regex' => 'không chứa kí tự',
             'name.unique' => 'Tên đã tồn tại'

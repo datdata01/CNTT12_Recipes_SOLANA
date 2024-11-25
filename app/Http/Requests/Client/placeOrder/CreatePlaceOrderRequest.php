@@ -26,6 +26,9 @@ class CreatePlaceOrderRequest extends FormRequest
             "total_amount" => "required",
             "payment_method" => "required",
             "note" => "nullable",
+            "discount_amount" => "nullable",
+            "voucher_id"      => "nullable",
+            'id_voucherUsage' => "nullable"
         ];
     }
 

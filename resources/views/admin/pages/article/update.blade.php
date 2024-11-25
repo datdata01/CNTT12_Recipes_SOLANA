@@ -90,11 +90,23 @@
     </div>
 
     @include('admin.pages.imagearticle.show')
-    <script src="//cdn.ckeditor.com/4.22.1/full/ckeditor.js"></script>
+    {{-- <script src="//cdn.ckeditor.com/4.22.1/full/ckeditor.js"></script>
     <script>
         CKEDITOR.replace('content', {
             width: '100%',
             height: '500px'
         });
-    </script>
+    </script> --}}
 @endsection
+@push('admin-scripts')
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/summernote@0.9.0/dist/summernote-lite.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/summernote@0.9.0/dist/summernote-lite.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            $('#content').summernote({
+                height: 300
+            });
+        });
+    </script>
+@endpush

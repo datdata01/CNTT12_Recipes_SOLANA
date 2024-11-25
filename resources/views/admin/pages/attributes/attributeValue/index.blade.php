@@ -15,9 +15,11 @@
                             <div class="form-group">
                                 {{-- <label for="name">Thuộc Tính</label> --}}
                                 <select class="form-control" name="attribute_id">
-                                    <option value="" disabled selected>Chọn loại thuộc tính</option>
+                                    <option disabled {{ old('attribute_id') ? '' : 'selected' }}>Chọn loại thuộc tính</option>
                                     @foreach ($listAttributes as $attribute)
-                                    <option value="{{ $attribute->id }}">{{ $attribute->name }}</option>
+                                        <option value="{{ $attribute->id }}" {{ old('attribute_id') == $attribute->id ? 'selected' : '' }}>
+                                            {{ $attribute->name }}
+                                        </option>
                                     @endforeach
                                 </select>
                                 @error('attribute_id')
@@ -26,7 +28,7 @@
                             </div>
                             <div class="form-group">
                                 <label for="name">Tên</label>
-                                <input type="text" name="name" class="form-control" placeholder="Tên giá thuộc tính">
+                                <input type="text" name="name" class="form-control" placeholder="Tên giá thuộc tính" value="{{ old('name') }}">
                                 @error('name')
                                 <div class="text-danger">{{ $message }}</div>
                                 @enderror

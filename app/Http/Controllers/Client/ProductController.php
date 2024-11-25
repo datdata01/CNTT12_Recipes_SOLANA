@@ -16,7 +16,10 @@ class ProductController extends Controller
     {
         $product = Product::with(['productImages', 'productVariants.attributeValues.attribute', 'categoryProduct'])->findOrFail($id);
         // dd($product);
-
+        if ($product) {
+            // Tăng view mỗi khi sản phẩm được xem
+            $product->increment('view');
+        }
         $productVariants = $product->toArray()['product_variants'];
         $variantResponse = [];
         $productResponse = [];
@@ -63,8 +66,14 @@ class ProductController extends Controller
         // lấy id danh mục sản phẩm , hiển thị sản phẩm cùng loại
         // hieen thị danh sách sản phẩm cùng loại với sản phẩm trước đó
         $categoryId = $product['category_product_id'];
-        $relatedProducts = Product::where('category_product_id', $categoryId)
-            ->where('id', '!=', $id) // Loại trừ sản phẩm hiện tại
+
+        $relatedProducts = Product::join('product_variants as pv', 'products.id', '=', 'pv.product_id')
+            ->leftJoin('order_items as ot', 'pv.id', '=', 'ot.product_variant_id')
+            ->leftJoin('feedbacks as f', 'ot.id', '=', 'f.order_item_id')
+            ->select('products.*', DB::raw('AVG(f.rating) as average_rating'))
+            ->groupBy('products.id') // Nhóm đầy đủ các cột
+            ->where('products.category_product_id', $categoryId) // Lọc cùng danh mục
+            ->where('products.id', '!=', $id) // Loại trừ sản phẩm hiện tại
             ->get();
 
         $feedbacks = Feedback::with(['orderItem.productVariant.product', 'user', 'replies'])

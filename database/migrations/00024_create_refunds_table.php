@@ -25,14 +25,16 @@ return new class extends Migration
                 'USED_ITEMS' // Hàng qua sử dụng
             ]);
             $table->text('description');
+            $table->string('code', 14);
             $table->string('image');
+            // Thêm cột status với các giá trị có thể có
             $table->enum('status', [
-                'PENDING', // Đang chờ xử lý
-                'APPROVED', // Đã được phê duyệt:
-                'DENIED', // Bị từ chối
-                'IN_TRÁNIT', // Đang vận chuyển
-                'RETURN_ORDER_COMPLETED' // Đơn hoàn hàng đã hoàn tấ
-            ]);
+                'ORDER_CREATED',              // Tạo đơn thành công
+                'CANCEL_REFUND_ORDER',        // Hủy đơn hoàn
+                'HANDOVER_TO_SHIPPING',       // Giao cho đơn vị vận chuyển
+                'REFUND_COMPLETED',           // Đã hoàn hàng thành công
+                'DELIVERY_FAILED'             // Giao hàng thất bại
+            ])->default('ORDER_CREATED');  // Thiết lập giá trị mặc định
         });
     }
 

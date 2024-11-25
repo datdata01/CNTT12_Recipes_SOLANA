@@ -7,7 +7,7 @@
         <div class="profile-contain">
             @if (Auth::user()->image)
                 <div class="profile-image">
-                    <img class="img-fluid" src="{{ '/storage/' . Auth::user()->image }}" alt="">
+                    <img class="img-fluid" style="width: 100px;height: 100px; object-fit: cover; " src="{{ '/storage/' . Auth::user()->image }}" alt="">
                 </div>
             @else
                 <div class="profile-image">
@@ -46,7 +46,10 @@
         </li>
 
         <li>
-            <a href="{{ route('profile.myVoucher.index') }}" class="nav-link"> <i class="iconsax" data-icon="bank-card"></i>Ưu đãi</a>
+            <a href="{{ route('profile.myVoucher.index') }}" class="nav-link">
+                <i class="fa-solid fa-ticket"></i>
+                Ưu đãi
+            </a>
         </li>
 
         {{-- <li>

@@ -16,7 +16,7 @@ return new class extends Migration
             $table->id();
             $table->foreignIdFor(CategoryArticle::class)->constrained();
             $table->string('title');
-            $table->text('content');
+            $table->longText('content');
             $table->string('image');
             $table->timestamps();
         });
