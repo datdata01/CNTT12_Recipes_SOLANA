@@ -21,7 +21,7 @@
             <div class="col-xxl-4 col-lg-6 mx-auto">
                 <div class="log-in-box">
                     <div class="log-in-title">
-                        <h4>Chào mừng đến với GunDam Win</h4>
+                        <h4>Chào mừng đến với CNTT12 Game</h4>
                         <p>Tạo mới tài khoản</p>
                     </div>
                     <div class="login-box">
