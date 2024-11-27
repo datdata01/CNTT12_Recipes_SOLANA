@@ -47,6 +47,9 @@ Route::prefix('')->middleware(['authApi'])->group(function () {
     Route::post('/voucher/check', [VoucherController::class, 'checkVoucher']);
     Route::post('/voucher/apply', [VoucherController::class, 'applyVoucher']);
     Route::post('voucher/usage-check', [VoucherController::class, 'checkVoucherUsage']);
+    // call connect phantom
+    // Route::get('/get-wallet-data', [WalletController::class, 'getWalletData']);
+
 
 });
 

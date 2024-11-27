@@ -177,3 +177,10 @@ Route::prefix('auth')->name('auth.')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
     Route::post('/profile/change-password', [AuthController::class, 'changePassword'])->name('profile.change-password');
 });
+// routes/web.php
+Route::get('/wallet-data', function() {
+    // Giả sử bạn đã có thông tin ví từ cơ sở dữ liệu hoặc một số dữ liệu cần thiết
+    return response()->json([
+        'walletAddress' => 'Giả sử đây là wallet address của người dùng'
+    ]);
+});

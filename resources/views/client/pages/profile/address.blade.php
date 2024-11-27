@@ -145,6 +145,7 @@
                     url: url,
                     type: 'GET',
                     success: function(data) {
+                        console.log(data);
                         $('#wardAdd').empty().append(
                             '<option value="">Chọn Xã/Phường</option>');
                         $.each(data, function(key, value) {

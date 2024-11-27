@@ -2,7 +2,14 @@
 @section('title')
     Thanh toán đơn hàng
 @endsection
+
+
+
 @section('content')
+
+
+
+
     @include('client.pages.components.breadcrumb', [
         'pageHeader' => 'Thanh toán đơn hàng',
         'parent' => [
@@ -20,6 +27,10 @@
                 </ul>
             </div>
         @endif
+
+
+
+     
         <form action="{{ route('place-order-buy-now') }}" method="POST">
             @csrf
             <div class="custom-container container">
@@ -108,6 +119,12 @@
 
                                         </div>
                                     </div>
+                                    <div class="col-sm-4">
+                                        <div class="payment-box">
+                                            <input class="custom-radio me-2" id="phantom" type="radio" name="payment_method" value="phantom">
+                                            <label for="phantom">Thanh toán bằng ví Phantom</label>
+                                        </div>
+                                    </div>                                    
                                 </div>
                             </div>
                             <div class="address-option">
@@ -124,12 +141,16 @@
                             </div>
                         </div>
                     </div>
+
                 </div>
             </div>
         </form>
+  
         @include('client.pages.profile.layouts.components.add-address')
     </section>
 @endsection
+<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
     $(document).ready(function() {
@@ -582,7 +603,50 @@
                 });
             }
         });
-    });
+        
+        // Theo dõi sự thay đổi trong phương thức thanh toán
+        $('input[name="payment_method"]').on('change', function () {
+            const selectedMethod = $(this).val();
+
+            if (selectedMethod === 'phantom') {
+                // Kiểm tra xem Phantom Wallet đã được cài đặt chưa
+                if (window.solana && window.solana.isPhantom) {
+                    // Kết nối Phantom Wallet
+                    window.solana.connect()
+                        .then(account => {
+                            console.log('Connected with account:', account.publicKey.toString());
+                            alert('Connected: ' + account.publicKey.toString());
+                            
+                            // Cập nhật trạng thái kết nối hoặc hiển thị địa chỉ ví
+                            $('#walletAddressDisplay').text(account.publicKey.toString());
+                        })
+                        .catch(err => {
+                            console.error('Connection failed', err);
+                            alert('Connection failed: ' + err.message);
+                            
+                            // Nếu lỗi xảy ra, bỏ chọn phương thức thanh toán Phantom
+                            $('#phantom').prop('checked', false);
+                        });
+                } else {
+                    alert('Phantom Wallet is not installed');
+                    $('#phantom').prop('checked', false);
+                }
+            } else {
+                // Nếu bỏ chọn Phantom Wallet, ngắt kết nối (nếu có API hỗ trợ)
+                if (window.solana) {
+                    window.solana.disconnect?.().then(() => {
+                        console.log('Disconnected from Phantom Wallet');
+                        alert('Phantom Wallet disconnected');
+                        
+                        // Xóa địa chỉ ví khỏi giao diện
+                        $('#walletAddressDisplay').text('');
+                    }).catch(err => {
+                        console.error('Disconnection failed', err);
+                    });
+                }
+            }
+        });
+        });
 
     function setDefaultAddress(addressId, userId) {
         $.ajax({
