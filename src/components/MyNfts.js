@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
-import { Alert, Button, Modal, ProgressBar } from 'react-bootstrap';
-import { apiKey } from '../api';
-import ItemsTable from './ItemsTable';
+import React, { useState } from "react";
+import { Alert, Button, Modal, ProgressBar } from "react-bootstrap";
+import { apiKey } from "../api";
+import ItemsTable from "./ItemsTable";
 
 const CreateProduct = ({ referenceId, collectionId, onSuccess }) => {
   const [showModal, setShowModal] = useState(false);
@@ -11,36 +11,30 @@ const CreateProduct = ({ referenceId, collectionId, onSuccess }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState(null);
   const [uploadProgress, setUploadProgress] = useState(0);
-  
+
   const [formData, setFormData] = useState({
-    name: '',
-    description: '',
+    name: "",
+    description: "",
     image: null,
-    traitType: '',
-    rarity: ''
+    traitType: "",
+    rarity: "",
   });
 
   const [preview, setPreview] = useState(null);
   const [formErrors, setFormErrors] = useState({});
 
-  const CLOUDINARY_UPLOAD_PRESET = 'GameNFT';
-  const CLOUDINARY_CLOUD_NAME = 'dg8b8iuzs';
+  const CLOUDINARY_UPLOAD_PRESET = "GameNFT";
+  const CLOUDINARY_CLOUD_NAME = "dg8b8iuzs";
 
-  const RARITY_OPTIONS = [
-    'Common', 
-    'Rare', 
-    'Epic', 
-    'Legendary', 
-    'Mythic'
-  ];
+  const RARITY_OPTIONS = ["Common", "Rare", "Epic", "Legendary", "Mythic"];
 
   const resetForm = () => {
     setFormData({
-      name: '',
-      description: '',
+      name: "",
+      description: "",
       image: null,
-      traitType: '',
-      rarity: ''
+      traitType: "",
+      rarity: "",
     });
     setPreview(null);
     setFormErrors({});
@@ -81,14 +75,14 @@ const CreateProduct = ({ referenceId, collectionId, onSuccess }) => {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
     if (formErrors[name]) {
-      setFormErrors(prev => ({
+      setFormErrors((prev) => ({
         ...prev,
-        [name]: null
+        [name]: null,
       }));
     }
   };
@@ -97,24 +91,24 @@ const CreateProduct = ({ referenceId, collectionId, onSuccess }) => {
     const file = e.target.files[0];
     if (file) {
       if (file.size > 5 * 1024 * 1024) {
-        setFormErrors(prev => ({
+        setFormErrors((prev) => ({
           ...prev,
-          image: "Kích thước file không được vượt quá 5MB"
+          image: "Kích thước file không được vượt quá 5MB",
         }));
         return;
       }
 
-      if (!file.type.startsWith('image/')) {
-        setFormErrors(prev => ({
+      if (!file.type.startsWith("image/")) {
+        setFormErrors((prev) => ({
           ...prev,
-          image: "Vui lòng chọn file hình ảnh"
+          image: "Vui lòng chọn file hình ảnh",
         }));
         return;
       }
 
-      setFormData(prev => ({
+      setFormData((prev) => ({
         ...prev,
-        image: file
+        image: file,
       }));
 
       const reader = new FileReader();
@@ -124,9 +118,9 @@ const CreateProduct = ({ referenceId, collectionId, onSuccess }) => {
       reader.readAsDataURL(file);
 
       if (formErrors.image) {
-        setFormErrors(prev => ({
+        setFormErrors((prev) => ({
           ...prev,
-          image: null
+          image: null,
         }));
       }
     }
@@ -134,29 +128,31 @@ const CreateProduct = ({ referenceId, collectionId, onSuccess }) => {
 
   const uploadImageToCloudinary = async (file) => {
     const formData = new FormData();
-    formData.append('file', file);
-    formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
-    formData.append('api_key', process.env.REACT_APP_CLOUDINARY_API_KEY);
+    formData.append("file", file);
+    formData.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
+    formData.append("api_key", process.env.REACT_APP_CLOUDINARY_API_KEY);
 
     try {
       const response = await fetch(
         `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`,
         {
-          method: 'POST',
-          body: formData
+          method: "POST",
+          body: formData,
         }
       );
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error?.message || 'Upload failed');
+        throw new Error(errorData.error?.message || "Upload failed");
       }
 
       const data = await response.json();
       return data.secure_url;
     } catch (err) {
-      console.error('Error uploading to Cloudinary:', err);
-      throw new Error('Không thể tải lên hình ảnh. Vui lòng thử lại. Chi tiết: ' + err.message);
+      console.error("Error uploading to Cloudinary:", err);
+      throw new Error(
+        "Không thể tải lên hình ảnh. Vui lòng thử lại. Chi tiết: " + err.message
+      );
     }
   };
 
@@ -178,7 +174,7 @@ const CreateProduct = ({ referenceId, collectionId, onSuccess }) => {
       setUploadProgress(50);
 
       if (!imageUrl) {
-        throw new Error('Không nhận được URL hình ảnh từ Cloudinary');
+        throw new Error("Không nhận được URL hình ảnh từ Cloudinary");
       }
 
       const payload = {
@@ -190,33 +186,38 @@ const CreateProduct = ({ referenceId, collectionId, onSuccess }) => {
           attributes: [
             {
               traitType: formData.traitType,
-              value: formData.rarity
-            }
-          ]
+              value: formData.rarity,
+            },
+          ],
         },
-        destinationUserReferenceId: referenceId
+        destinationUserReferenceId: referenceId,
       };
 
       setUploadProgress(75);
-      
-      const response = await fetch('https://api.gameshift.dev/nx/unique-assets', {
-        method: 'POST',
-        headers: {
-          'accept': 'application/json',
-          'content-type': 'application/json',
-          'x-api-key': apiKey
-        },
-        body: JSON.stringify(payload)
-      });
+
+      const response = await fetch(
+        "https://api.gameshift.dev/nx/unique-assets",
+        {
+          method: "POST",
+          headers: {
+            accept: "application/json",
+            "content-type": "application/json",
+            "x-api-key": apiKey,
+          },
+          body: JSON.stringify(payload),
+        }
+      );
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
+        throw new Error(
+          errorData.message || `HTTP error! status: ${response.status}`
+        );
       }
 
       setUploadProgress(100);
       const data = await response.json();
-      
+
       setIsSuccess(true);
       setResultMessage("Tạo vật phẩm thành công!");
       resetForm();
@@ -225,11 +226,12 @@ const CreateProduct = ({ referenceId, collectionId, onSuccess }) => {
       if (onSuccess) {
         onSuccess(data);
       }
-
     } catch (err) {
-      console.error('Error creating product:', err);
+      console.error("Error creating product:", err);
       setIsSuccess(false);
-      setResultMessage(err.message || "Không thể tạo vật phẩm. Vui lòng thử lại sau");
+      setResultMessage(
+        err.message || "Không thể tạo vật phẩm. Vui lòng thử lại sau"
+      );
     } finally {
       setIsSubmitting(false);
       setShowResultModal(true);
@@ -264,15 +266,17 @@ const CreateProduct = ({ referenceId, collectionId, onSuccess }) => {
               {error}
             </Alert>
           )}
-          
+
           <form onSubmit={handleSubmit}>
             <div className="row">
               <div className="col-md-6">
                 <div className="mb-3">
                   <label className="form-label">Tên vật phẩm</label>
-                  <input 
-                    type="text" 
-                    className={`form-control ${formErrors.name ? 'is-invalid' : ''}`}
+                  <input
+                    type="text"
+                    className={`form-control ${
+                      formErrors.name ? "is-invalid" : ""
+                    }`}
                     name="name"
                     value={formData.name}
                     onChange={handleInputChange}
@@ -287,8 +291,10 @@ const CreateProduct = ({ referenceId, collectionId, onSuccess }) => {
 
                 <div className="mb-3">
                   <label className="form-label">Mô tả</label>
-                  <textarea 
-                    className={`form-control ${formErrors.description ? 'is-invalid' : ''}`}
+                  <textarea
+                    className={`form-control ${
+                      formErrors.description ? "is-invalid" : ""
+                    }`}
                     name="description"
                     value={formData.description}
                     onChange={handleInputChange}
@@ -298,15 +304,19 @@ const CreateProduct = ({ referenceId, collectionId, onSuccess }) => {
                     maxLength={64}
                   />
                   {formErrors.description && (
-                    <div className="invalid-feedback">{formErrors.description}</div>
+                    <div className="invalid-feedback">
+                      {formErrors.description}
+                    </div>
                   )}
                 </div>
 
                 <div className="mb-3">
                   <label className="form-label">Giftcode</label>
-                  <input 
-                    type="text" 
-                    className={`form-control ${formErrors.traitType ? 'is-invalid' : ''}`}
+                  <input
+                    type="text"
+                    className={`form-control ${
+                      formErrors.traitType ? "is-invalid" : ""
+                    }`}
                     name="traitType"
                     value={formData.traitType}
                     onChange={handleInputChange}
@@ -315,22 +325,28 @@ const CreateProduct = ({ referenceId, collectionId, onSuccess }) => {
                     maxLength={8}
                   />
                   {formErrors.traitType && (
-                    <div className="invalid-feedback">{formErrors.traitType}</div>
+                    <div className="invalid-feedback">
+                      {formErrors.traitType}
+                    </div>
                   )}
                 </div>
 
                 <div className="mb-3">
                   <label className="form-label">Độ hiếm</label>
                   <select
-                    className={`form-control ${formErrors.rarity ? 'is-invalid' : ''}`}
+                    className={`form-control ${
+                      formErrors.rarity ? "is-invalid" : ""
+                    }`}
                     name="rarity"
                     value={formData.rarity}
                     onChange={handleInputChange}
                     disabled={isSubmitting}
                   >
                     <option value="">Chọn độ hiếm</option>
-                    {RARITY_OPTIONS.map(rarity => (
-                      <option key={rarity} value={rarity}>{rarity}</option>
+                    {RARITY_OPTIONS.map((rarity) => (
+                      <option key={rarity} value={rarity}>
+                        {rarity}
+                      </option>
                     ))}
                   </select>
                   {formErrors.rarity && (
@@ -338,13 +354,15 @@ const CreateProduct = ({ referenceId, collectionId, onSuccess }) => {
                   )}
                 </div>
               </div>
-              
+
               <div className="col-md-6">
                 <div className="mb-3">
                   <label className="form-label">Hình ảnh</label>
-                  <input 
-                    type="file" 
-                    className={`form-control ${formErrors.image ? 'is-invalid' : ''}`}
+                  <input
+                    type="file"
+                    className={`form-control ${
+                      formErrors.image ? "is-invalid" : ""
+                    }`}
                     accept="image/*"
                     onChange={handleImageChange}
                     disabled={isSubmitting}
@@ -358,14 +376,14 @@ const CreateProduct = ({ referenceId, collectionId, onSuccess }) => {
 
                   {preview && (
                     <div className="mt-3 text-center">
-                      <img 
-                        src={preview} 
-                        alt="Preview" 
+                      <img
+                        src={preview}
+                        alt="Preview"
                         className="img-fluid rounded"
-                        style={{ 
-                          maxWidth: '100%', 
-                          maxHeight: '400px', 
-                          objectFit: 'contain' 
+                        style={{
+                          maxWidth: "100%",
+                          maxHeight: "400px",
+                          objectFit: "contain",
                         }}
                       />
                     </div>
@@ -376,23 +394,38 @@ const CreateProduct = ({ referenceId, collectionId, onSuccess }) => {
 
             {uploadProgress > 0 && (
               <div className="mt-3">
-                <ProgressBar now={uploadProgress} label={`${uploadProgress}%`} />
+                <ProgressBar
+                  now={uploadProgress}
+                  label={`${uploadProgress}%`}
+                />
               </div>
             )}
           </form>
         </Modal.Body>
         <Modal.Footer>
-          <Button variant="secondary" onClick={handleClose} disabled={isSubmitting}>
+          <Button
+            variant="secondary"
+            onClick={handleClose}
+            disabled={isSubmitting}
+          >
             Hủy
           </Button>
-          <Button variant="primary" onClick={handleSubmit} disabled={isSubmitting}>
+          <Button
+            variant="primary"
+            onClick={handleSubmit}
+            disabled={isSubmitting}
+          >
             {isSubmitting ? (
               <>
-                <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                <span
+                  className="spinner-border spinner-border-sm me-2"
+                  role="status"
+                  aria-hidden="true"
+                ></span>
                 Đang tạo...
               </>
             ) : (
-              'Tạo vật phẩm'
+              "Tạo vật phẩm"
             )}
           </Button>
         </Modal.Footer>
@@ -401,10 +434,10 @@ const CreateProduct = ({ referenceId, collectionId, onSuccess }) => {
       {/* Result Modal */}
       <Modal show={showResultModal} onHide={() => setShowResultModal(false)}>
         <Modal.Header closeButton>
-          <Modal.Title>{isSuccess ? 'Thành công' : 'Lỗi'}</Modal.Title>
+          <Modal.Title>{isSuccess ? "Thành công" : "Lỗi"}</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <Alert variant={isSuccess ? 'success' : 'danger'}>
+          <Alert variant={isSuccess ? "success" : "danger"}>
             {resultMessage}
           </Alert>
         </Modal.Body>
@@ -414,6 +447,9 @@ const CreateProduct = ({ referenceId, collectionId, onSuccess }) => {
           </Button>
         </Modal.Footer>
       </Modal>
+      <br />
+      <br />
+      <br />
     </div>
   );
 };

@@ -1,7 +1,14 @@
 import axios from "axios";
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+  useRef,
+} from "react";
 import { Alert, Button, Form, Modal, Spinner, Dropdown } from "react-bootstrap";
 import { apiKey } from "../api";
+import "bootstrap/dist/css/bootstrap.min.css";
 
 const usePagination = (items, initialPerPage = 10) => {
   const [pagination, setPagination] = useState({
@@ -184,6 +191,34 @@ const MarketplaceHome = ({ referenceId }) => {
   const [sortOrder, setSortOrder] = useState("default");
   const [lastFetchTime, setLastFetchTime] = useState(Date.now());
   const [searchTerm, setSearchTerm] = useState("");
+
+  // Thêm state cho slideshow
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const images = [
+    "https://picsum.photos/1300/500",
+    "https://picsum.photos/1300/500?random=2",
+    "https://picsum.photos/1300/500?random=3",
+    "https://picsum.photos/1300/500?random=4",
+    "https://picsum.photos/1300/500?random=5",
+    "https://picsum.photos/1300/500?random=6",
+    "https://picsum.photos/1300/500?random=7",
+  ];
+
+  // Function to change slide (next slide)
+  const changeSlide = (direction) => {
+    setCurrentIndex((prevIndex) => {
+      if (direction === "next") {
+        return (prevIndex + 1) % images.length; // move forward
+      } else {
+        return (prevIndex - 1 + images.length) % images.length; // move backward
+      }
+    });
+  };
+
+  useEffect(() => {
+    const intervalId = setInterval(() => changeSlide("next"), 3000); // Change image every 3 seconds
+    return () => clearInterval(intervalId); // Clean up interval on unmount
+  }, []);
 
   const filteredItems = useMemo(() => {
     const filtered = allItems.filter(
@@ -375,13 +410,10 @@ const MarketplaceHome = ({ referenceId }) => {
   return (
     <div
       className="marketplace-container position-relative"
-      style={{
-        minHeight: "500px",
-        color: "#ffffff",
-      }}
+      style={{ minHeight: "500px", color: "#ffffff" }}
     >
       <div className="container py-5">
-        <div className="mb-5">
+        {/* <div className="mb-5">
           <div
             className="p-5 text-center bg-image rounded-3"
             style={{
@@ -397,41 +429,62 @@ const MarketplaceHome = ({ referenceId }) => {
               style={{ backgroundColor: "rgba(0, 0, 0, 0.6)" }}
             >
               <div className="d-flex justify-content-center align-items-center h-100">
-                {/* <div className="text-white">
+                <div className="text-white">
                   <h1 className="mb-3">Chào mừng</h1>
                   <h4 className="mb-3">Đến với thế giới NFT</h4>
-                </div> */}
+                </div>
               </div>
             </div>
           </div>
+        </div> */}
+
+        {/* Banner Section */}
+        <div className="slider-container">
+          <button
+            className="slider-button prev"
+            onClick={() => changeSlide("prev")}
+          >
+            &#10094; {/* Left arrow symbol */}
+          </button>
+
+          {images.map((image, index) => (
+            <img
+              key={index}
+              src={image}
+              alt={`slide ${index}`}
+              className={`slider-image ${
+                currentIndex === index ? "visible" : ""
+              }`}
+            />
+          ))}
+
+          <button
+            className="slider-button next"
+            onClick={() => changeSlide("next")}
+          >
+            &#10095; {/* Right arrow symbol */}
+          </button>
         </div>
 
-        {/* <div className="text-center mb-5">
-          <h1
-            className="display-4 fw-bold text-white mb-3"
-            style={{
-              background: "linear-gradient(90deg, #00d2ff 0%, #7e51ff 100%)",
-              WebkitBackgroundClip: "text",
-              WebkitTextFillColor: "transparent",
-            }}
-          >
-            Marketplace
-          </h1>
-          <p className="lead text-white-50">
-            Khám phá và sở hữu những tài sản độc đáo
-          </p>
-        </div> */}
+        <div className="run">
+          <marquee>
+            <span style={{ color: "red" }}>[SHOPCNTT12]</span>
+            CHÀO MỪNG BẠN ĐẾN VỚI SHOPCNTT12 - SHOP BÁN VẬT PHẨM GAME CSGO UY
+            TÍN , TOP 1 VIỆT NAM
+          </marquee>
+        </div>
 
         <div className="row mb-4 g-3 align-items-center">
           <div className="col-12 col-md-4">
-            <div className="d-flex align-items-center text-white">
+            <div className="d-flex align-items-center justify-content-between text-white">
               <span className="me-3">
-                Hiển thị: {currentItems.length} / {totalResults} sản phẩm
+                Hiển thị: {currentItems.length}/{totalResults}
               </span>
               <Form.Select
                 size="sm"
                 className="text-white"
                 style={{
+                  width: "200px", // Đặt chiều rộng cụ thể cho dropdown
                   background: "rgba(255, 255, 255, 0.1)",
                   backdropFilter: "blur(15px)",
                   borderRadius: "15px",
@@ -468,26 +521,27 @@ const MarketplaceHome = ({ referenceId }) => {
           />
         </div>
 
-        <div className="d-flex justify-content-end mb-3 text-white">
+        {/* Sort Dropdown: Menu sắp xếp sản phẩm */}
+        <div className="d-flex justify-content-end mb-3">
           <Dropdown>
             <Dropdown.Toggle variant="secondary" id="dropdown-sort">
-              Sort BySort By
+              Sắp xếp theo
             </Dropdown.Toggle>
             <Dropdown.Menu>
               <Dropdown.Item onClick={() => setSortOrder("default")}>
-                Default
+                Mặc định
               </Dropdown.Item>
               <Dropdown.Item onClick={() => setSortOrder("price-high-low")}>
-                Price: High to Low
+                Giá: Cao đến Thấp
               </Dropdown.Item>
               <Dropdown.Item onClick={() => setSortOrder("price-low-high")}>
-                Price: Low to High
+                Giá: Thấp đến Cao
               </Dropdown.Item>
               <Dropdown.Item onClick={() => setSortOrder("name-a-z")}>
-                Name: A to Z
+                Tên: A đến Z
               </Dropdown.Item>
               <Dropdown.Item onClick={() => setSortOrder("name-z-a")}>
-                Name: Z to A
+                Tên: Z đến A
               </Dropdown.Item>
             </Dropdown.Menu>
           </Dropdown>
@@ -504,26 +558,25 @@ const MarketplaceHome = ({ referenceId }) => {
               return (
                 <div key={item.id} className="col">
                   <div
-                    className="card h-100 bg-transparent border-0 card-hover-effect"
+                    className="card h-100 bg-transparent border-0 shadow-lg"
                     style={{
-                      background: "rgba(255, 255, 255, 0.1)",
-                      backdropFilter: "blur(20px)",
-                      borderRadius: "15px",
-                      boxShadow: "0 8px 32px 0 rgba(31, 38, 135, 0.37)",
-                      border: "1px solid rgba(255, 255, 255, 0.18)",
+                      borderRadius: "15px", // Bo tròn góc
+                      backdropFilter: "blur(20px)", // Hiệu ứng mờ nền
                     }}
                   >
+                    {/* Product Image: Hiển thị ảnh sản phẩm */}
                     <div
                       className="card-img-top position-relative overflow-hidden"
                       style={{
-                        height: "250px",
-                        borderTopLeftRadius: "15px",
-                        borderTopRightRadius: "15px",
+                        height: "250px", // Chiều cao ảnh
+                        borderTopLeftRadius: "15px", // Bo tròn góc trên trái
+                        borderTopRightRadius: "15px", // Bo tròn góc trên phải
                         background: `url(${
                           item.imageUrl || "/default-image.jpg"
                         }) center/cover no-repeat`,
                       }}
                     >
+                      {/* Price Badge: Hiển thị giá */}
                       <div
                         className="position-absolute top-0 end-0 m-3 badge bg-dark bg-opacity-50"
                         style={{ backdropFilter: "blur(5px)" }}
@@ -534,6 +587,7 @@ const MarketplaceHome = ({ referenceId }) => {
                       </div>
                     </div>
 
+                    {/* Product Info: Hiển thị thông tin sản phẩm */}
                     <div className="card-body text-white">
                       <h5 className="card-title fw-bold mb-2">{item.name}</h5>
                       <p className="card-text text-white-50 mb-3">
