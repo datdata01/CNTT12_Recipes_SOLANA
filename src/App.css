@@ -1,19 +1,19 @@
 /* Bảng màu Web3 Grey Theme */
 :root {
   /* Màu chính */
-  --primary-color: #6b7280;
+  --primary-color: #1c1a24;
   /* Xám trung tính */
-  --secondary-color: #9ca3af;
+  --secondary-color: #1c1a24;
   /* Xám nhạt */
-  --accent-color: #9ca3af;
+  --accent-color: #1c1a24;
   /* Xám đậm */
-  --hover-color: #374151;
+  --hover-color: #0062ff;
   /* Xám tối */
 
   /* Nền */
-  --background-light: #f9fafb;
+  --background-light: #1c1a24;
   /* Xám trắng rất nhạt */
-  --background-dark: #9ca3af;
+  --background-dark: #1c1a24;
   /* Xám đen */
   --background-alt: #111827;
   /* Đen xám */
@@ -23,11 +23,11 @@
   /* Tím đậm làm điểm nhấn */
 
   /* Văn bản */
-  --text-light: #f3f4f6;
+  --text-light: #bf00ff;
   /* Xám trắng */
-  --text-dark: #111827;
+  --text-dark: #ffffff;
   /* Đen xám */
-  --text-muted: #6b7280;
+  --text-muted: #ffffff;
   /* Xám trung tính */
   --text-link: #4338ca;
   /* Xanh indigo */
@@ -45,15 +45,15 @@
   /* Xanh dương */
 
   /* Gradient */
-  --gradient-primary: linear-gradient(90deg, #6b7280, #4b5563);
+  --gradient-primary: linear-gradient(90deg, #1c1a24, #1c1a24);
   /* Gradient xám */
-  --gradient-secondary: linear-gradient(90deg, #9ca3af, #6b7280);
+  --gradient-secondary: linear-gradient(90deg, #9ca3af, #1c1a24);
   /* Gradient xám nhạt */
   --gradient-accent: linear-gradient(90deg, #374151, #1f2937);
   /* Gradient xám đen */
 
   /* Bóng và viền */
-  --card-shadow: rgba(55, 65, 81, 0.1);
+  --card-shadow: rgba(255, 255, 255, 0.1);
   /* Bóng xám nhạt cho thẻ */
   --card-border: rgba(107, 114, 128, 0.2);
   /* Viền xám cho thẻ */
@@ -75,6 +75,36 @@ body {
   display: flex;
   flex-direction: column;
   min-height: 100vh; /* Đảm bảo chiều cao trang luôn là 100% */
+}
+
+.navbar-logo {
+  height: 60px; /* Đặt chiều cao tùy chỉnh */
+  width: 140px; /* Giữ nguyên tỷ lệ khung hình */
+  margin-left: 20px; /* Khoảng cách giữa logo và các thành phần khác */
+  margin-right: 20px; /* Khoảng cách giữa logo và các thành phần khác */
+}
+
+.header-banner {
+  width: 100%;
+  text-align: center;
+  margin-bottom: 10px;
+}
+
+.header-image {
+  max-width: 100%;
+  height: auto;
+  object-fit: cover;
+}
+
+/* Loại bỏ padding mặc định cho container */
+.navbar .container {
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+}
+
+.navbar-brand,
+.navbar-nav {
+  margin-left: 0; /* Đảm bảo logo và menu không có margin */
 }
 
 .slider-container {
@@ -124,78 +154,6 @@ body {
   background-color: rgba(0, 0, 0, 0.8);
 }
 
-/* Đảm bảo footer luôn ở dưới cùng */
-.footer {
-  position: relative;
-  width: 100%;
-  background-color: #343a40;
-  color: #fff;
-  padding-top: 40px;
-  padding-bottom: 40px;
-  margin-top: auto; /* Đảm bảo Footer luôn ở dưới cùng */
-  margin-bottom: 0; /* Loại bỏ khoảng cách bên dưới */
-}
-
-/* Footer Description */
-.footer-description {
-  font-size: 1rem;
-  color: #bbb;
-  line-height: 1.5;
-}
-
-.footer-copy {
-  font-size: 1rem;
-  color: #aaa;
-}
-
-.footer .social-btn {
-  font-size: 1.6rem;
-  color: #fff;
-  background-color: #444;
-  padding: 12px;
-  border-radius: 50%;
-  transition: all 0.3s ease;
-  display: inline-block;
-  margin: 0 8px;
-}
-
-.footer .social-btn:hover {
-  background-color: #007bff;
-  color: #fff;
-  transform: scale(1.1);
-}
-
-/* Chỉnh sửa kiểu của các phần tử chứa trong footer */
-.footer .bi {
-  font-size: 2rem; /* Tăng kích thước biểu tượng */
-}
-
-/* Media Queries for Responsiveness */
-@media (max-width: 768px) {
-  .footer .social-btn {
-    font-size: 1.5rem; /* Biểu tượng nhỏ hơn trên màn hình di động */
-  }
-
-  .footer .footer-description {
-    font-size: 0.95rem;
-  }
-
-  .footer .footer-copy {
-    font-size: 0.9rem;
-  }
-}
-
-/* Điều chỉnh cho màn hình lớn */
-@media (min-width: 768px) {
-  .footer .container {
-    max-width: 1140px;
-  }
-
-  .footer .col-md-6 {
-    margin-bottom: 20px;
-  }
-}
-
 .app-container {
   max-width: 100%;
   margin: 0 auto;
@@ -223,7 +181,7 @@ body {
 }
 
 .navbar .nav-link {
-  color: rgba(0, 0, 0, 0.8) !important;
+  color: rgba(255, 255, 255, 0.8) !important;
   transition: color 0.3s ease;
 }
 

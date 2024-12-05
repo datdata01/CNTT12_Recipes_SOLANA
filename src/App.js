@@ -30,6 +30,7 @@ import AuthForm from "./components/AuthForm";
 import Home from "./components/Home";
 import MyNfts from "./components/MyNfts";
 import Footer from "./components/Footer"; // Import Footer component
+import PurchaseHistory from "./components/PurchaseHistory";
 
 const USDC_MINT_ADDRESS = new PublicKey(
   "4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU"
@@ -123,22 +124,84 @@ function App() {
           </div>
         ) : (
           <>
+            {/* Thêm ảnh vào trên Header */}
+            <div className="header-banner">
+              <img
+                src="/images/banner_header.png"
+                alt="Banner Header"
+                className="header-image"
+              />
+            </div>
+
             <Navbar expand="lg" bg="dark" variant="dark">
-              <Container>
-                <Navbar.Brand>
-                  <i className="bi bi-controller me-2"></i>Solana CNTT 12
+              <Container fluid className="px-0">
+                {" "}
+                {/* Sử dụng container-fluid để không có padding */}
+                {/* Phần logo và menu bên trái */}
+                <Navbar.Brand className="ms-0">
+                  <img
+                    src="/images/logo.png"
+                    alt="Logo"
+                    className="navbar-logo"
+                  />
                 </Navbar.Brand>
                 <Navbar.Toggle aria-controls="basic-navbar-nav" />
                 <Navbar.Collapse id="basic-navbar-nav">
-                  <Nav className="me-auto">
+                  <Nav className="me-auto ms-0">
+                    {" "}
+                    {/* Loại bỏ margin trái và phải */}
                     <Nav.Link as={NavLink} to="/home">
                       <i className="bi bi-house-door me-2"></i>Trang chủ
                     </Nav.Link>
                     <Nav.Link as={NavLink} to="/my-nfts">
                       <i className="bi bi-bank me-2"></i>Kho NFT
                     </Nav.Link>
+                    <Nav.Link as={NavLink} to="/purchase-history">
+                      <i className="bi bi-bank me-2"></i>Lịch sử mua hàng
+                    </Nav.Link>
                   </Nav>
-                  <Nav>
+
+                  {/* Phần tài khoản sát bên phải */}
+                  <Nav className="ms-auto d-flex align-items-center">
+                    {/* Phần kết nối ví sát bên phải */}
+                    <div className="d-flex align-items-center ms-3">
+                      {!walletAddress ? (
+                        <Button
+                          variant="success"
+                          onClick={connectWallet}
+                          disabled={walletLoading}
+                        >
+                          {walletLoading ? (
+                            <Spinner as="span" animation="border" size="sm" />
+                          ) : (
+                            "Kết nối ví"
+                          )}
+                        </Button>
+                      ) : (
+                        <div className="d-flex align-items-center">
+                          <span className="me-3">
+                            SOL: <strong>{walletBalance.toFixed(2)} SOL</strong>
+                          </span>
+                          <span>
+                            USDC:{" "}
+                            <span className="fw-bold text-white ms-1">
+                              {usdcBalance !== null
+                                ? usdcBalance.toFixed(2)
+                                : "Đang tải..."}{" "}
+                              USDC
+                            </span>
+                          </span>
+                          <Button
+                            variant="outline-danger"
+                            size="sm"
+                            onClick={disconnectWallet}
+                            className="ms-3"
+                          >
+                            Ngắt kết nối
+                          </Button>
+                        </div>
+                      )}
+                    </div>
                     <NavDropdown
                       title={
                         <>
@@ -148,51 +211,6 @@ function App() {
                       }
                       id="user-dropdown"
                     >
-                      {!walletAddress ? (
-                        <NavDropdown.Item>
-                          <Button
-                            variant="success"
-                            onClick={connectWallet}
-                            disabled={walletLoading}
-                            className="w-100"
-                          >
-                            {walletLoading ? (
-                              <Spinner as="span" animation="border" size="sm" />
-                            ) : (
-                              "Kết nối ví"
-                            )}
-                          </Button>
-                        </NavDropdown.Item>
-                      ) : (
-                        <>
-                          <NavDropdown.ItemText>
-                            <div className="d-flex flex-column">
-                              <span>
-                                SOL:{" "}
-                                <strong>{walletBalance.toFixed(2)} SOL</strong>
-                              </span>
-                              <span>
-                                USDC:{" "}
-                                <strong>
-                                  {usdcBalance !== null
-                                    ? usdcBalance.toFixed(2)
-                                    : "Đang tải..."}
-                                </strong>
-                              </span>
-                            </div>
-                          </NavDropdown.ItemText>
-                          <NavDropdown.Item>
-                            <Button
-                              variant="outline-danger"
-                              size="sm"
-                              onClick={disconnectWallet}
-                              className="w-100"
-                            >
-                              Ngắt kết nối
-                            </Button>
-                          </NavDropdown.Item>
-                        </>
-                      )}
                       <NavDropdown.Divider />
                       <NavDropdown.Item
                         onClick={handleLogout}
@@ -206,7 +224,6 @@ function App() {
                 </Navbar.Collapse>
               </Container>
             </Navbar>
-
             {walletError && (
               <Container fluid>
                 <div className="alert alert-danger mt-2">{walletError}</div>
@@ -223,6 +240,10 @@ function App() {
                 <Route
                   path="/my-nfts"
                   element={<MyNfts referenceId={userData?.referenceId} />}
+                />
+                <Route
+                  path="/purchase-history"
+                  element={<PurchaseHistory userId={userData?.referenceId} />}
                 />
               </Routes>
             </Container>

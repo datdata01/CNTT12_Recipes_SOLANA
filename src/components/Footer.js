@@ -4,13 +4,12 @@ import "bootstrap-icons/font/bootstrap-icons.css";
 const Footer = () => {
   return (
     <footer className="footer bg-dark text-light py-5">
-      <div className="container">
+      <div className="container-fluid">
         <div className="row align-items-center">
           {/* Logo and Description */}
           <div className="col-md-6 text-center text-md-start mb-4 mb-md-0">
             <div className="d-flex align-items-center justify-content-center justify-content-md-start">
-              <i className="bi bi-controller me-2 fs-3 text-primary"></i>
-              <h4 className="mb-0">Solana CNTT 12</h4>
+              <img src="/images/logo.png" alt="Logo" className="navbar-logo" />
             </div>
             <p className="footer-description mt-2">
               Shop CNTT12 mua và trao đổi vật phẩm game
@@ -21,7 +20,7 @@ const Footer = () => {
           <div className="col-md-6 text-center text-md-end">
             <div className="social-links d-flex justify-content-center justify-content-md-end mb-3">
               <a
-                href="https://github.com/quanghyyy/Web3.git"
+                href="#"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="social-btn me-3"
@@ -29,7 +28,7 @@ const Footer = () => {
                 <i className="bi bi-github"></i>
               </a>
               <a
-                href="https://discord.com/channels/@me"
+                href="#"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="social-btn me-3"

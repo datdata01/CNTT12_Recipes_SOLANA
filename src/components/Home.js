@@ -195,13 +195,14 @@ const MarketplaceHome = ({ referenceId }) => {
   // Thêm state cho slideshow
   const [currentIndex, setCurrentIndex] = useState(0);
   const images = [
-    "https://picsum.photos/1300/500",
-    "https://picsum.photos/1300/500?random=2",
-    "https://picsum.photos/1300/500?random=3",
-    "https://picsum.photos/1300/500?random=4",
-    "https://picsum.photos/1300/500?random=5",
-    "https://picsum.photos/1300/500?random=6",
-    "https://picsum.photos/1300/500?random=7",
+    "/images/5.png",
+    "/images/4.jpg",
+    "/images/7.png",
+    "/images/1.png",
+    "/images/2.png",
+    "/images/3.png",
+    "/images/4.jpg",
+    "/images/6.jpg",
   ];
 
   // Function to change slide (next slide)
