@@ -77,6 +77,7 @@ body {
   min-height: 100vh; /* Đảm bảo chiều cao trang luôn là 100% */
 }
 
+
 .navbar-logo {
   height: 60px; /* Đặt chiều cao tùy chỉnh */
   width: 140px; /* Giữ nguyên tỷ lệ khung hình */

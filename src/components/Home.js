@@ -195,6 +195,7 @@ const MarketplaceHome = ({ referenceId }) => {
   // Thêm state cho slideshow
   const [currentIndex, setCurrentIndex] = useState(0);
   const images = [
+    "/images/footer-banner.png",
     "/images/5.png",
     "/images/4.jpg",
     "/images/7.png",
@@ -414,30 +415,6 @@ const MarketplaceHome = ({ referenceId }) => {
       style={{ minHeight: "500px", color: "#ffffff" }}
     >
       <div className="container py-5">
-        {/* <div className="mb-5">
-          <div
-            className="p-5 text-center bg-image rounded-3"
-            style={{
-              backgroundImage:
-                "url('https://static.vecteezy.com/system/resources/previews/004/727/152/non_2x/illustration-of-a-non-fungible-token-nft-background-for-infographics-digital-technology-concept-crypto-art-futuristic-neon-wallpaper-with-typography-vector.jpg')",
-              height: "300px",
-              backgroundSize: "cover",
-              backgroundPosition: "center",
-            }}
-          >
-            <div
-              className="mask"
-              style={{ backgroundColor: "rgba(0, 0, 0, 0.6)" }}
-            >
-              <div className="d-flex justify-content-center align-items-center h-100">
-                <div className="text-white">
-                  <h1 className="mb-3">Chào mừng</h1>
-                  <h4 className="mb-3">Đến với thế giới NFT</h4>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div> */}
 
         {/* Banner Section */}
         <div className="slider-container">

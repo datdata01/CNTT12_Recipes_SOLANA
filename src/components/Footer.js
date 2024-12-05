@@ -6,6 +6,7 @@ const Footer = () => {
     <footer className="footer bg-dark text-light py-5">
       <div className="container-fluid">
         <div className="row align-items-center">
+          
           {/* Logo and Description */}
           <div className="col-md-6 text-center text-md-start mb-4 mb-md-0">
             <div className="d-flex align-items-center justify-content-center justify-content-md-start">

@@ -1,152 +1,222 @@
 import React, { useEffect, useState } from "react";
-import { Alert, Table, Spinner, Modal, Button } from "react-bootstrap";
+import { Table, Spinner, Alert, Form, Button, Pagination, Modal } from "react-bootstrap";
+import { apiKey } from "../api";
 
-const PurchaseHistory = ({ userId }) => {
+const PurchaseHistory = ({ userReferenceId }) => {
   const [purchaseHistory, setPurchaseHistory] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [filteredHistory, setFilteredHistory] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
   const [showModal, setShowModal] = useState(false);
-  const [selectedItem, setSelectedItem] = useState(null);
+  const [selectedPurchase, setSelectedPurchase] = useState(null);
+  const itemsPerPage = 5;
 
   useEffect(() => {
     const fetchPurchaseHistory = async () => {
+      setLoading(true);
+      setError(null);
+
+      const url = `https://api.gameshift.dev/nx/payments`;
+      const options = {
+        method: "GET",
+        headers: {
+          accept: "application/json",
+          "x-api-key": apiKey,
+        },
+      };
+
       try {
-        setIsLoading(true);
-        setError(null);
-
-        const response = await fetch(
-          `https://api.example.com/users/${userId}/purchase-history`
-        );
-
+        const response = await fetch(url, options);
         if (!response.ok) {
-          throw new Error(
-            `Không thể lấy dữ liệu: ${response.status} - ${response.statusText}`
-          );
+          throw new Error("Không thể tải lịch sử mua hàng.");
         }
-
         const data = await response.json();
-        console.log("Dữ liệu trả về từ API:", data);  // Kiểm tra dữ liệu trả về
 
-        setPurchaseHistory(data.purchases || []);  // Đảm bảo API trả về "purchases" là mảng
+        // Lọc dữ liệu dựa trên userReferenceId
+        const filteredData = data.data.filter(
+          (payment) => payment.purchaser.referenceId === userReferenceId
+        );
+        setPurchaseHistory(filteredData);
+        setFilteredHistory(filteredData);
       } catch (err) {
-        setError("Không thể lấy dữ liệu từ API: " + err.message);
+        setError(err.message);
       } finally {
-        setIsLoading(false);
+        setLoading(false);
       }
     };
 
-    if (userId) {
+    if (userReferenceId) {
       fetchPurchaseHistory();
     }
-  }, [userId]);
+  }, [userReferenceId]);
 
-  const handleShowDetails = (item) => {
-    setSelectedItem(item);
+  // Xử lý tìm kiếm
+  useEffect(() => {
+    const filtered = purchaseHistory.filter((purchase) =>
+      purchase.sku.item.name.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+    setFilteredHistory(filtered);
+    setCurrentPage(1); // Reset về trang đầu khi tìm kiếm
+  }, [searchTerm, purchaseHistory]);
+
+  // Tính toán số trang
+  const totalPages = Math.ceil(filteredHistory.length / itemsPerPage);
+  const currentItems = filteredHistory.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
+  const handlePageChange = (pageNumber) => {
+    setCurrentPage(pageNumber);
+  };
+
+  const handleViewDetails = (purchase) => {
+    setSelectedPurchase(purchase);
     setShowModal(true);
   };
 
   const handleCloseModal = () => {
     setShowModal(false);
-    setSelectedItem(null);
+    setSelectedPurchase(null);
   };
 
   return (
-    <div>
-      <h2 className="mb-4 theme-text">Lịch sử mua hàng</h2>
+    <div className="purchase-history">
+      <h3>Lịch sử Mua Hàng</h3>
 
-      {isLoading && (
+      {loading ? (
         <div className="text-center">
-          <Spinner animation="border" role="status">
-            <span className="visually-hidden">Loading...</span>
-          </Spinner>
+          <Spinner animation="border" variant="primary" />
+          <p>Đang tải...</p>
         </div>
-      )}
+      ) : error ? (
+        <Alert variant="danger">{error}</Alert>
+      ) : (
+        <>
+          <div className="d-flex justify-content-between align-items-center mb-3">
+            <Form.Control
+              type="text"
+              placeholder="Tìm kiếm sản phẩm..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              style={{ maxWidth: "300px" }}
+            />
+          </div>
 
-      {error && (
-        <Alert variant="danger" className="mt-3">
-          {error}
-        </Alert>
-      )}
+          {filteredHistory.length === 0 ? (
+            <Alert variant="warning">Không có lịch sử mua hàng.</Alert>
+          ) : (
+            <>
+              <Table striped bordered hover responsive>
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>Ảnh</th>
+                    <th>Sản phẩm</th>
+                    <th>Số tiền</th>
+                    <th>Ngày giao dịch</th>
+                    <th>Trạng thái</th>
+                    <th>Hành động</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {currentItems.map((purchase, index) => (
+                    <tr key={purchase.id}>
+                      <td>{(currentPage - 1) * itemsPerPage + index + 1}</td>
+                      <td>
+                        <img
+                          src={purchase.sku.item.imageUrl}
+                          alt={purchase.sku.item.name}
+                          style={{
+                            width: "50px",
+                            height: "50px",
+                            objectFit: "cover",
+                            borderRadius: "5px",
+                          }}
+                        />
+                      </td>
+                      <td>{purchase.sku.item.name}</td>
+                      <td>{purchase.price.naturalAmount.toLocaleString()} USDC</td>
+                      <td>{new Date(purchase.timestamp).toLocaleString()}</td>
+                      <td>
+                        <span
+                          className={`badge ${
+                            purchase.status === "Completed"
+                              ? "bg-success"
+                              : purchase.status === "Pending"
+                              ? "bg-warning"
+                              : purchase.status === "Expired"
+                              ? "bg-danger"
+                              : "bg-secondary"
+                          }`}
+                        >
+                          {purchase.status}
+                        </span>
+                      </td>
+                      <td>
+                        <Button
+                          variant="primary"
+                          size="sm"
+                          onClick={() => handleViewDetails(purchase)}
+                        >
+                          Xem chi tiết
+                        </Button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </Table>
 
-      {!isLoading && !error && purchaseHistory.length === 0 && (
-        <Alert variant="warning" className="mt-3">
-          Bạn chưa mua sản phẩm nào.
-        </Alert>
-      )}
-
-      {!isLoading && !error && purchaseHistory.length > 0 && (
-        <Table bordered hover responsive className="mt-4">
-          <thead>
-            <tr>
-              <th>#</th>
-              <th>Hình ảnh</th>
-              <th>Tên sản phẩm</th>
-              <th>Giá</th>
-              <th>Ngày mua</th>
-              <th>Chi tiết</th>
-            </tr>
-          </thead>
-          <tbody>
-            {purchaseHistory.map((item, index) => {
-              console.log("Item in purchaseHistory:", item);  // Kiểm tra từng sản phẩm
-              return (
-                <tr key={item.id}>
-                  <td>{index + 1}</td>
-                  <td>
-                    <img
-                      src={item.imageUrl}
-                      alt={item.name}
-                      style={{ maxWidth: "80px", maxHeight: "80px" }}
-                      className="img-fluid rounded"
-                    />
-                  </td>
-                  <td>{item.name}</td>
-                  <td>{item.price.toLocaleString()} VND</td>
-                  <td>{new Date(item.purchaseDate).toLocaleDateString()}</td>
-                  <td>
-                    <Button
-                      variant="primary"
-                      size="sm"
-                      onClick={() => handleShowDetails(item)}
-                    >
-                      Xem chi tiết
-                    </Button>
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </Table>
-      )}
-
-      <Modal show={showModal} onHide={handleCloseModal}>
-        <Modal.Header closeButton>
-          <Modal.Title>Chi tiết sản phẩm</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          {selectedItem && (
-            <div>
-              <div className="text-center mb-3">
-                <img
-                  src={selectedItem.imageUrl}
-                  alt={selectedItem.name}
-                  style={{ maxWidth: "100%", maxHeight: "300px" }}
-                  className="img-fluid rounded"
-                />
-              </div>
-              <h5>{selectedItem.name}</h5>
-              <p>Giá: {selectedItem.price.toLocaleString()} VND</p>
-              <p>Ngày mua: {new Date(selectedItem.purchaseDate).toLocaleDateString()}</p>
-              <p>Mô tả: {selectedItem.description}</p>
-            </div>
+              <Pagination>
+                {[...Array(totalPages)].map((_, index) => (
+                  <Pagination.Item
+                    key={index}
+                    active={index + 1 === currentPage}
+                    onClick={() => handlePageChange(index + 1)}
+                  >
+                    {index + 1}
+                  </Pagination.Item>
+                ))}
+              </Pagination>
+            </>
           )}
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={handleCloseModal}>
-            Đóng
-          </Button>
-        </Modal.Footer>
-      </Modal>
+        </>
+      )}
+
+      {/* Modal chi tiết */}
+      {selectedPurchase && (
+        <Modal show={showModal} onHide={handleCloseModal} centered>
+          <Modal.Header closeButton>
+            <Modal.Title>Chi tiết giao dịch</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            <div className="text-center">
+              <img
+                src={selectedPurchase.sku.item.imageUrl}
+                alt={selectedPurchase.sku.item.name}
+                style={{
+                  width: "150px",
+                  height: "150px",
+                  objectFit: "cover",
+                  borderRadius: "8px",
+                }}
+              />
+            </div>
+            <p><strong>Sản phẩm:</strong> {selectedPurchase.sku.item.name}</p>
+            <p><strong>Số tiền:</strong> {selectedPurchase.price.naturalAmount.toLocaleString()} USDC</p>
+            <p><strong>Ngày giao dịch:</strong> {new Date(selectedPurchase.timestamp).toLocaleString()}</p>
+            <p><strong>Trạng thái:</strong> {selectedPurchase.status}</p>
+            <p><strong>Mô tả:</strong> {selectedPurchase.sku.item.description}</p>
+          </Modal.Body>
+          <Modal.Footer>
+            <Button variant="secondary" onClick={handleCloseModal}>
+              Đóng
+            </Button>
+          </Modal.Footer>
+        </Modal>
+      )}
     </div>
   );
 };

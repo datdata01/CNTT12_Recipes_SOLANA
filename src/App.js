@@ -243,7 +243,7 @@ function App() {
                 />
                 <Route
                   path="/purchase-history"
-                  element={<PurchaseHistory userId={userData?.referenceId} />}
+                  element={<PurchaseHistory userReferenceId={userData?.referenceId} />}
                 />
               </Routes>
             </Container>
