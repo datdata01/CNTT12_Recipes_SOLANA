@@ -25,7 +25,7 @@
   /* Văn bản */
   --text-light: #bf00ff;
   /* Xám trắng */
-  --text-dark: #ffffff;
+  --text-dark: #bf00ff;
   /* Đen xám */
   --text-muted: #ffffff;
   /* Xám trung tính */
@@ -269,7 +269,7 @@ body {
 
 /* Alert Styling */
 .alert-danger {
-  background-color: #fee2e2;
+  background-color: #000000;
   color: #7f1d1d;
   border: none;
   border-radius: 8px;

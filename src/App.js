@@ -51,29 +51,47 @@ function App() {
   const [walletLoading, setWalletLoading] = useState(false);
   const [walletError, setWalletError] = useState(null);
 
+  const getUsdcBalance = async (connection, walletPublicKey) => {
+    try {
+      const publicKey = typeof walletPublicKey === 'string'
+        ? new PublicKey(walletPublicKey)
+        : walletPublicKey;
+
+      const tokenAccounts = await connection.getParsedTokenAccountsByOwner(
+        publicKey,
+        { programId: TOKEN_PROGRAM_ID }
+      );
+
+      const usdcAccount = tokenAccounts.value.find(
+        (account) => account.account.data.parsed.info.mint === USDC_MINT_ADDRESS.toBase58()
+      );
+
+      return usdcAccount
+        ? usdcAccount.account.data.parsed.info.tokenAmount.uiAmount || 0
+        : 0;
+    } catch (error) {
+      console.error('Lỗi khi lấy số dư USDC:', error);
+      return 0;
+    }
+  };
+
   const fetchUsdcBalance = useCallback(async () => {
     if (walletAddress) {
       try {
-        const tokenAccounts = await connection.getParsedTokenAccountsByOwner(
-          new PublicKey(walletAddress),
-          { programId: TOKEN_PROGRAM_ID }
-        );
-
-        const usdcAccount = tokenAccounts.value.find(
-          (account) =>
-            account.account.data.parsed.info.mint ===
-            USDC_MINT_ADDRESS.toBase58()
-        );
-
-        setUsdcBalance(
-          usdcAccount?.account.data.parsed.info.tokenAmount.uiAmount || 0
-        );
+        const balance = await getUsdcBalance(connection, walletAddress);
+        setUsdcBalance(balance);
       } catch (error) {
-        console.error("Lỗi khi lấy số dư USDC:", error);
+        console.error('Lỗi khi lấy số dư USDC:', error);
         setUsdcBalance(0);
       }
     }
   }, [walletAddress, connection]);
+
+  useEffect(() => {
+    if (walletAddress) {
+      fetchUsdcBalance();
+    }
+  }, [walletAddress, fetchUsdcBalance]);
 
   const connectWallet = async () => {
     setWalletLoading(true);
@@ -85,27 +103,55 @@ function App() {
         throw new Error("Vui lòng cài đặt Phantom Wallet!");
       }
 
-      await provider.connect();
+      if (provider.isConnected) {
+        await provider.disconnect();
+      }
+
+      await provider.connect({ onlyIfTrusted: false });
+
       const publicKey = provider.publicKey;
+      if (!publicKey) {
+        throw new Error("Không thể lấy địa chỉ ví. Vui lòng thử lại.");
+      }
+
       setWalletAddress(publicKey.toString());
-      const balance = await connection.getBalance(publicKey);
-      setWalletBalance(balance / LAMPORTS_PER_SOL);
+      await getWalletBalance(publicKey);
       await fetchUsdcBalance();
+
     } catch (err) {
       console.error("Lỗi khi kết nối ví:", err);
-      setWalletError(err.message || "Không thể kết nối ví.");
+      setWalletError(
+        err.code === 4001
+          ? "Kết nối ví bị từ chối. Vui lòng thử lại."
+          : err.message || "Không thể kết nối ví. Vui lòng thử lại."
+      );
     } finally {
       setWalletLoading(false);
     }
   };
 
+  const getWalletBalance = async (publicKey) => {
+    try {
+      const balance = await connection.getBalance(publicKey);
+      setWalletBalance(balance / LAMPORTS_PER_SOL);
+    } catch (err) {
+      console.error("Lỗi khi lấy số dư:", err);
+      setWalletError("Không thể lấy số dư ví. Vui lòng thử lại.");
+    }
+  };
+
   const disconnectWallet = async () => {
-    const provider = window.phantom?.solana;
-    if (provider) {
-      await provider.disconnect();
-      setWalletAddress(null);
-      setWalletBalance(0);
-      setUsdcBalance(null);
+    try {
+      const provider = window.phantom?.solana;
+      if (provider) {
+        await provider.disconnect();
+        setWalletAddress(null);
+        setWalletBalance(0);
+        setUsdcBalance(null);
+      }
+    } catch (err) {
+      console.error("Lỗi khi ngắt kết nối ví:", err);
+      setWalletError("Không thể ngắt kết nối ví. Vui lòng thử lại.");
     }
   };
 
@@ -243,7 +289,9 @@ function App() {
                 />
                 <Route
                   path="/purchase-history"
-                  element={<PurchaseHistory userReferenceId={userData?.referenceId} />}
+                  element={
+                    <PurchaseHistory userReferenceId={userData?.referenceId} />
+                  }
                 />
               </Routes>
             </Container>
