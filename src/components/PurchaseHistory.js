@@ -17,7 +17,7 @@ const PurchaseHistory = ({ userReferenceId }) => {
     const fetchPurchaseHistory = async () => {
       setLoading(true);
       setError(null);
-
+  
       const url = `https://api.gameshift.dev/nx/payments`;
       const options = {
         method: "GET",
@@ -26,17 +26,18 @@ const PurchaseHistory = ({ userReferenceId }) => {
           "x-api-key": apiKey,
         },
       };
-
+  
       try {
         const response = await fetch(url, options);
         if (!response.ok) {
           throw new Error("Không thể tải lịch sử mua hàng.");
         }
         const data = await response.json();
-
-        // Lọc dữ liệu dựa trên userReferenceId
+  
+        // Lọc dữ liệu để chỉ hiển thị lịch sử mua hàng của người dùng hiện tại
         const filteredData = data.data.filter(
-          (payment) => payment.purchaser.referenceId === userReferenceId
+          (payment) =>
+            payment.purchaser && payment.purchaser.referenceId === userReferenceId
         );
         setPurchaseHistory(filteredData);
         setFilteredHistory(filteredData);
@@ -46,7 +47,7 @@ const PurchaseHistory = ({ userReferenceId }) => {
         setLoading(false);
       }
     };
-
+  
     if (userReferenceId) {
       fetchPurchaseHistory();
     }
